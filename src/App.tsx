@@ -1,11 +1,20 @@
-import React, { useEffect, FC } from "react";
+import React, { useEffect, useState } from "react";
 
-const App: FC = () => {
+export default function App() {
+  const [times, setTimes] = useState(0);
+
   useEffect(() => {
-    console.log("Hello from the client!");
+    const timer = setInterval(() => {
+      setTimes((prev: number) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, []);
 
-  return <div style={{ backgroundColor: "red" }}>REACT SSRR</div>;
-};
-
-export default App;
+  return (
+    <div>
+      <h1>Hello {times}</h1>
+      <button onClick={() => setTimes((times) => times + 1)}>ADD</button>
+    </div>
+  );
+}
