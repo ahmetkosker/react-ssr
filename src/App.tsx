@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from "react";
 
-export default function App() {
+export default function App({ name }: { name: string }) {
   const [times, setTimes] = useState(0);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimes((prev: number) => prev + 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
+  console.log(name);
 
   return (
     <div>
-      <h1>Hello {times}</h1>
+      <h1 className="text-red-500">Hello {times}</h1>
       <button onClick={() => setTimes((times) => times + 1)}>ADD</button>
+      <div>{name}</div>
     </div>
   );
 }
