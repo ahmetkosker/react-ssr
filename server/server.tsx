@@ -21,10 +21,6 @@ app.get("/static/:fileName", (req, res: Response) => {
 });
 
 app.get("/", async (req, res) => {
-  const data = await fetch("https://jsonplaceholder.typicode.com/todos")
-    .then((response) => response.json())
-    .then((json) => json.slice(0, 10));
-
   res.write;
 
   const app = ReactDOMServer.renderToString(<App name="ahmet" />);
