@@ -28,11 +28,11 @@
     "ts-node": "^10.9.2"
   },
   "scripts": {
-    "start": "nodemon build/server.js --watch",
-    "build:client": "esbuild src/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=dist/",
-    "build:server": "esbuild server/server.tsx --bundle --platform=node --outfile=build/server.js",
+    "start": "nodemon src/server/build/server.js --watch",
+    "build:client": "esbuild src/client/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=src/client/dist/",
+    "build:server": "esbuild src/server/server.tsx --bundle --platform=node --outfile=src/server/build/server.js",
     "build": "yarn build:client && yarn build:server",
-    "tailwindcssWatch": "yarn run tailwindcss -i ./style/index.css -o ./dist/bundle.css --watch"
+    "tailwindcssWatch": "yarn run tailwindcss -i ./src/client/style/index.css -o ./src/client/dist/bundle.css --watch"
   },
   "browserslist": {
     "production": [
