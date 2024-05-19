@@ -28,16 +28,19 @@
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "@types/react-i18next": "^8.1.0",
+    "concurrently": "^8.0.1",
     "nodemon": "^3.0.2",
     "tailwindcss": "^3.4.0",
     "ts-node": "^10.9.2"
   },
   "scripts": {
-    "start": "nodemon src/server/build/server.js --watch",
-    "build:client": "esbuild src/client/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=src/client/dist/",
-    "build:server": "esbuild src/server/server.tsx --bundle --platform=node --outfile=src/server/build/server.js",
+    "start": "node src/server/build/server.js",
+    "build:client": "esbuild src/client/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=src/client/dist/ --watch",
+    "build:server": "esbuild src/server/server.tsx --bundle --platform=node --loader:.js=jsx --outfile=src/server/build/server.js",
     "build": "yarn build:client && yarn build:server",
-    "tailwindcssWatch": "yarn run tailwindcss -i ./src/client/style/index.css -o ./src/client/dist/bundle.css --watch"
+    "tw": "tailwindcss -i ./src/client/style/index.css -o ./src/client/dist/bundle.css --watch",
+    "serve": "browser-sync start --proxy 'localhost:3000' --files 'src/client/dist/bundle.css, src/client/dist/**/*.js'",
+    "start:dev": "concurrently \"yarn build:client\" \"yarn build:server\" \"yarn tw\" \"yarn serve\" \"nodemon --watch src --ext js,jsx,ts,tsx --ignore src/client/dist --ignore src/server/build --exec 'node src/server/build/server.js'\""
   },
   "browserslist": {
     "production": [

@@ -1,0 +1,8 @@
+{
+  "watch": [
+    "src/client/**/*.{js,jsx,ts,tsx}",
+    "src/server/**/*.{js,jsx,ts,tsx}"
+  ],
+  "ignore": ["src/client/dist/*", "src/server/build/*"],
+  "exec": "yarn build && yarn start"
+}
