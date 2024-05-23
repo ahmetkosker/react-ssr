@@ -1,4 +1,4 @@
 import { createApp } from "../../../lib/client/createApp";
-import Homex from "./Homex";
+import User from "./User";
 
-createApp(Homex);
+createApp({ Page: User });

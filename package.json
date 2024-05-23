@@ -35,12 +35,14 @@
   },
   "scripts": {
     "start": "node src/server/build/server.js",
-    "build:client": "esbuild src/client/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=src/client/dist/ --watch",
+    "build:client": "esbuild src/client/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=src/client/dist/",
     "build:server": "esbuild src/server/server.tsx --bundle --platform=node --loader:.js=jsx --outfile=src/server/build/server.js",
+    "build:client:watch": "esbuild src/client/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=src/client/dist/ --watch",
+    "build:server:watch": "esbuild src/server/server.tsx --bundle --platform=node --loader:.js=jsx --outfile=src/server/build/server.js --watch",
     "build": "yarn build:client && yarn build:server",
     "tw": "tailwindcss -i ./src/client/style/index.css -o ./src/client/dist/bundle.css --watch",
     "serve": "browser-sync start --proxy 'localhost:3000' --files 'src/client/dist/bundle.css, src/client/dist/**/*.js'",
-    "start:dev": "concurrently \"yarn build:client\" \"yarn build:server\" \"yarn tw\" \"yarn serve\" \"nodemon --watch src --ext js,jsx,ts,tsx --ignore src/client/dist --ignore src/server/build --exec 'node src/server/build/server.js'\""
+    "start:dev": "concurrently \"yarn build:client:watch\" \"yarn build:server:watch\" \"yarn tw\" \"nodemon --watch src --ext js,jsx,ts,tsx --ignore src/client/dist --ignore src/server/build --exec 'node src/server/build/server.js'\""
   },
   "browserslist": {
     "production": [

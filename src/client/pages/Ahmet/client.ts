@@ -1,4 +1,4 @@
 import { createApp } from "../../../lib/client/createApp";
-import Home from "./Home";
+import Ahmet from "./Ahmet";
 
-createApp({ Page: Home });
+createApp({ Page: Ahmet });
