@@ -1,15 +1,20 @@
 import express from "express";
 import compression from "compression";
 import path from "path";
+import cookieParser from "cookie-parser";
 import { createDynamicRoute } from "./routing/createDynamicRoute";
+import i18nextMiddleware from "i18next-http-middleware";
+import i18n from "./i18n";
 import Home from "../client/pages/Home/Home";
 import Ahmet from "../client/pages/Ahmet/Ahmet";
-import User from "../client/pages/User/User"; // User component'ini import edin
+import User from "../client/pages/User/User";
 
 const app = express();
-const PORT = 3000;
+const PORT = 3002;
 
+app.use(cookieParser());
 app.use(compression());
+app.use(i18nextMiddleware.handle(i18n));
 app.use(
   "/dist",
   express.static(path.join(__dirname, "..", "..", "client", "dist"))
@@ -39,6 +44,10 @@ app.use(
       );
       const data = await response.json();
       return { data };
+    },
+    auth: async (req, res) => {
+      res.cookie("token", "123456789");
+      return true;
     },
   })
 );

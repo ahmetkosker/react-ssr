@@ -1,20 +1,15 @@
-import React, { ReactElement } from "react";
+import React from "react";
 import ReactDOMServer from "react-dom/server";
+import { I18nextProvider } from "react-i18next";
+import i18n from "../i18n";
 
-interface Metatag {
-  title: string;
-  description: string;
-}
-
-export function renderHtml(
-  Component: React.ComponentType<any>,
-  id: string,
-  metatag: Metatag,
-  pageProps: any
-): string {
+export function renderHtml(Component, id, metatag, pageProps) {
   const appHtml = ReactDOMServer.renderToString(
-    React.createElement(Component, pageProps)
+    <I18nextProvider i18n={i18n}>
+      <Component {...pageProps} />
+    </I18nextProvider>
   );
+
   const html = `
     <!DOCTYPE html>
     <html> 
@@ -33,6 +28,5 @@ export function renderHtml(
     </html>
   `;
 
-  console.log("Generated HTML:", html); 
   return html;
 }
