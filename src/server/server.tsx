@@ -10,7 +10,7 @@ import Ahmet from "../client/pages/Ahmet/Ahmet";
 import User from "../client/pages/User/User";
 
 const app = express();
-const PORT = 3002;
+const PORT = 3000;
 
 app.use(cookieParser());
 app.use(compression());

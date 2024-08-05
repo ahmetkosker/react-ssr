@@ -3,7 +3,7 @@ import ReactDOMServer from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
 import i18n from "../i18n";
 
-export function renderHtml(Component, id, metatag, pageProps) {
+export function renderHtml(Component, id, metatag, pageProps, lang) {
   const appHtml = ReactDOMServer.renderToString(
     <I18nextProvider i18n={i18n}>
       <Component {...pageProps} />
@@ -22,6 +22,7 @@ export function renderHtml(Component, id, metatag, pageProps) {
         <div id="root">${appHtml}</div> 
         <script>
           window.__DATA__ = ${JSON.stringify(pageProps)};
+          window.__LANG__ = "${lang}";
         </script>
         <script src="/dist/${id}/client.js"></script>
       </body>

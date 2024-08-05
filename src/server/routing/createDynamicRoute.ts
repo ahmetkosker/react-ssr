@@ -17,8 +17,6 @@ interface RouteConfig {
   auth?: (req: Request, res: Response) => boolean | Promise<boolean>;
 }
 
-let supportedLangs = ["fr", "en"];
-
 function createDynamicRoute(config: RouteConfig): express.RequestHandler {
   const router = Router();
 
@@ -40,7 +38,7 @@ function createDynamicRoute(config: RouteConfig): express.RequestHandler {
 
       const lang = req.cookies.lang
         ? req.cookies.lang
-        : supportedLangs.includes(
+        : i18n.languages.includes(
             req.headers["accept-language"]?.split("-")[0] as string
           )
         ? req.headers["accept-language"]?.split("-")[0]
@@ -50,16 +48,20 @@ function createDynamicRoute(config: RouteConfig): express.RequestHandler {
 
       const metatag = config.generateMetatag(pageProps.data);
 
-      const html = renderHtml(config.component, config.id, metatag, pageProps);
+      const html = renderHtml(
+        config.component,
+        config.id,
+        metatag,
+        pageProps,
+        lang
+      );
 
-      res.cookie("jwt", "123123123", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 1000 * 60 * 60 * 24,
-      });
-
-      res.cookie("lang", lang);
+      // res.cookie("jwt", "123123123", {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+      //   maxAge: 1000 * 60 * 60 * 24,
+      // });
 
       res.status(200).set({ "Content-Type": "text/html" }).send(html);
     } catch (error) {
