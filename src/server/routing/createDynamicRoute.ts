@@ -8,16 +8,16 @@ interface Metatag {
   description: string;
 }
 
-interface RouteConfig {
+interface RouteConfig<T = unknown> {
   path: string;
   id: string;
-  component: React.FC<any>;
-  generateMetatag: (data: any) => Metatag;
-  fetchInitialData?: (params?: Record<string, any>) => Promise<any>;
+  component: React.FC<{ data: T }>;
+  generateMetatag: (data: T) => Metatag;
+  fetchInitialData?: (params?: Record<string, unknown>) => Promise<{ data: T }>;
   auth?: (req: Request, res: Response) => boolean | Promise<boolean>;
 }
 
-function createDynamicRoute(config: RouteConfig): express.RequestHandler {
+function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.RequestHandler {
   const router = Router();
 
   router.get(config.path, async (req: Request, res: Response) => {
@@ -31,7 +31,7 @@ function createDynamicRoute(config: RouteConfig): express.RequestHandler {
 
       const params = { ...req.params, ...req.query };
 
-      let pageProps: any = {};
+      let pageProps: { data: T } = { data: {} as T };
       if (config.fetchInitialData) {
         pageProps = await config.fetchInitialData(params);
       }

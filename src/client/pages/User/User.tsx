@@ -7,7 +7,7 @@ type User = {
   completed: boolean;
 };
 
-const User: React.FC<{ data: any }> = ({ data }) => {
+const User: React.FC<{ data: User }> = ({ data }) => {
   return (
     <div className="text-red-500">
       <a href="/ahmet">Back</a>
