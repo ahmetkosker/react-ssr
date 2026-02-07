@@ -41,6 +41,10 @@
   },
   "scripts": {
     "start": "node src/server/build/server.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "yarn typecheck",
+    "test": "node --require ts-node/register --test tests/**/*.test.ts",
+    "ci": "yarn lint && yarn test && yarn build",
     "build:client": "esbuild src/client/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=src/client/dist/",
     "build:server": "esbuild src/server/server.tsx --bundle --platform=node --loader:.js=jsx --outfile=src/server/build/server.js",
     "build:client:watch": "esbuild src/client/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=src/client/dist/ --watch",
