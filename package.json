@@ -10,34 +10,31 @@
     "url": "https://github.com/ahmetkosker"
   },
   "dependencies": {
-    "@types/i18next": "^13.0.0",
-    "@types/i18next-fs-backend": "^1.1.5",
-    "@types/react-i18next": "^8.1.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
-    "esbuild": "^0.19.11",
     "express": "^4.18.2",
     "i18next": "^23.11.5",
-    "i18next-fs-backend": "^2.3.1",
-    "i18next-http-backend": "^2.5.2",
-    "i18next-http-middleware": "^3.6.0",
     "react": "^18.2.0",
     "react-cookie": "^7.1.4",
     "react-dom": "^18.2.0",
-    "react-i18next": "^14.1.2",
-    "typescript": "^5.3.3"
+    "react-i18next": "^14.1.2"
   },
   "devDependencies": {
     "@types/compression": "^1",
     "@types/cookie-parser": "^1",
     "@types/express": "^4.17.21",
+    "@types/i18next": "^13.0.0",
+    "@types/i18next-fs-backend": "^1.1.5",
     "@types/node": "^20.10.5",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
+    "@types/react-i18next": "^8.1.0",
     "concurrently": "^8.0.1",
+    "esbuild": "^0.19.11",
     "nodemon": "^3.0.2",
     "tailwindcss": "^3.4.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "scripts": {
     "start": "node src/server/build/server.js",
@@ -45,13 +42,12 @@
     "lint": "yarn typecheck",
     "test": "node --require ts-node/register --test tests/**/*.test.ts",
     "ci": "yarn lint && yarn test && yarn build",
-    "build:client": "esbuild src/client/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=src/client/dist/",
+    "build:client": "esbuild src/client/pages/**/client.ts --bundle --minify --loader:.js=jsx --outdir=src/client/dist/",
     "build:server": "esbuild src/server/server.tsx --bundle --platform=node --loader:.js=jsx --outfile=src/server/build/server.js",
-    "build:client:watch": "esbuild src/client/pages/**/*.{tsx,jsx,js,ts} --bundle --minify --loader:.js=jsx --outdir=src/client/dist/ --watch",
+    "build:client:watch": "esbuild src/client/pages/**/client.ts --bundle --minify --loader:.js=jsx --outdir=src/client/dist/ --watch",
     "build:server:watch": "esbuild src/server/server.tsx --bundle --platform=node --loader:.js=jsx --outfile=src/server/build/server.js --watch",
     "build": "yarn build:client && yarn build:server",
     "tw": "tailwindcss -i ./src/client/style/index.css -o ./src/client/dist/bundle.css --watch",
-    "serve": "browser-sync start --proxy 'localhost:3000' --files 'src/client/dist/bundle.css, src/client/dist/**/*.js'",
     "start:dev": "concurrently \"yarn build:client:watch\" \"yarn build:server:watch\" \"yarn tw\" \"nodemon --watch src --ext js,jsx,ts,tsx --ignore src/client/dist --ignore src/server/build --exec 'node src/server/build/server.js'\""
   },
   "browserslist": {
