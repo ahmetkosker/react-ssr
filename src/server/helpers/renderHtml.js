@@ -32,15 +32,42 @@ export function renderHtml(Component, id, metatag, pageProps, lang, i18n) {
 
   const safeTitle = escapeHtml(metatag.title);
   const safeDescription = escapeHtml(metatag.description);
+  const safeLang = escapeHtml(lang);
+  const safeCanonicalUrl = metatag.canonicalUrl
+    ? escapeHtml(metatag.canonicalUrl)
+    : "";
+  const safeOgType = escapeHtml(metatag.type ?? "website");
+  const safeSiteName = escapeHtml(metatag.siteName ?? "React SSR");
   const serializedPageProps = serializeForInlineScript(pageProps);
   const serializedLang = serializeForInlineScript(String(lang));
+  const robotsContent = metatag.noindex ? "noindex, nofollow" : "index, follow";
 
   const html = `
     <!DOCTYPE html>
-    <html> 
+    <html lang="${safeLang}"> 
       <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>${safeTitle}</title>
         <meta name="description" content="${safeDescription}">
+        <meta name="robots" content="${robotsContent}">
+        ${
+          safeCanonicalUrl
+            ? `<link rel="canonical" href="${safeCanonicalUrl}">`
+            : ""
+        }
+        <meta property="og:title" content="${safeTitle}">
+        <meta property="og:description" content="${safeDescription}">
+        <meta property="og:type" content="${safeOgType}">
+        <meta property="og:site_name" content="${safeSiteName}">
+        ${
+          safeCanonicalUrl
+            ? `<meta property="og:url" content="${safeCanonicalUrl}">`
+            : ""
+        }
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:title" content="${safeTitle}">
+        <meta name="twitter:description" content="${safeDescription}">
         <link rel="stylesheet" href="/dist/bundle.css">
       </head>
       <body>

@@ -37,6 +37,8 @@ interface UserRouteData {
   currentPath?: string;
 }
 
+const STATIC_SITEMAP_PATHS = ["/", "/ahmet"];
+
 async function sendServerRenderedPage<T>(
   req: Request,
   res: Response,
@@ -44,16 +46,30 @@ async function sendServerRenderedPage<T>(
     statusCode: number;
     id: string;
     component: FC<{ data: T }>;
-    metatag: { title: string; description: string };
+    metatag: {
+      title: string;
+      description: string;
+      canonicalUrl?: string;
+      type?: "website" | "article";
+      noindex?: boolean;
+      siteName?: string;
+    };
     data: T;
   }
 ): Promise<void> {
   const lang = resolveRequestLanguage(req);
   const requestI18n = await createRequestI18n(lang);
+  const metatag = {
+    ...options.metatag,
+    canonicalUrl:
+      options.metatag.canonicalUrl ??
+      new URL(req.path, config.publicBaseUrl).toString(),
+    siteName: options.metatag.siteName ?? config.siteName,
+  };
   const html = renderHtml(
     options.component,
     options.id,
-    options.metatag,
+    metatag,
     { data: options.data },
     lang,
     requestI18n
@@ -68,6 +84,28 @@ app.use(
   "/dist",
   express.static(path.join(__dirname, "..", "..", "client", "dist"))
 );
+
+app.get("/robots.txt", (_req: Request, res: Response) => {
+  const content = [
+    "User-agent: *",
+    "Allow: /",
+    `Sitemap: ${config.publicBaseUrl}/sitemap.xml`,
+  ].join("\n");
+
+  res.status(200).type("text/plain").send(content);
+});
+
+app.get("/sitemap.xml", (_req: Request, res: Response) => {
+  const urlEntries = STATIC_SITEMAP_PATHS.map((pathName) => {
+    const url = new URL(pathName, config.publicBaseUrl).toString();
+    return `<url><loc>${url}</loc></url>`;
+  }).join("");
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urlEntries}</urlset>`;
+
+  res.status(200).type("application/xml").send(xml);
+});
 
 app.get("/healthz", (_req: Request, res: Response) => {
   res.status(200).json({
@@ -145,6 +183,7 @@ app.use((req: Request, res: Response) => {
     metatag: {
       title: "404 | Not Found",
       description: "The requested page could not be found.",
+      noindex: true,
     },
     data: {
       path: req.path,
@@ -172,6 +211,7 @@ app.use(
       metatag: {
         title: "500 | Server Error",
         description: "An unexpected server error occurred.",
+        noindex: true,
       },
       data: {
         message,

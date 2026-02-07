@@ -5,10 +5,15 @@ import {
   createRequestI18n,
   resolveRequestLanguage,
 } from "../i18n";
+import { config as serverConfig } from "../config";
 
 interface Metatag {
   title: string;
   description: string;
+  canonicalUrl?: string;
+  type?: "website" | "article";
+  noindex?: boolean;
+  siteName?: string;
 }
 
 interface RouteConfig<T = unknown> {
@@ -54,7 +59,15 @@ function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.Reques
       const lang = resolveRequestLanguage(req);
       const requestI18n = await createRequestI18n(lang);
 
-      const metatag = config.generateMetatag(pageData);
+      const generatedMetatag = config.generateMetatag(pageData);
+      const canonicalUrl =
+        generatedMetatag.canonicalUrl ??
+        new URL(req.path, serverConfig.publicBaseUrl).toString();
+      const metatag = {
+        ...generatedMetatag,
+        canonicalUrl,
+        siteName: generatedMetatag.siteName ?? serverConfig.siteName,
+      };
 
       const html = renderHtml(
         config.component,
