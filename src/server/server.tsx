@@ -3,8 +3,6 @@ import compression from "compression";
 import path from "path";
 import cookieParser from "cookie-parser";
 import { createDynamicRoute } from "./routing/createDynamicRoute";
-import i18nextMiddleware from "i18next-http-middleware";
-import i18n from "./i18n";
 import Home from "../client/pages/Home/Home";
 import Ahmet from "../client/pages/Ahmet/Ahmet";
 import User from "../client/pages/User/User";
@@ -23,7 +21,6 @@ type Todo = {
 
 app.use(cookieParser());
 app.use(compression());
-app.use(i18nextMiddleware.handle(i18n));
 app.use(
   "/dist",
   express.static(path.join(__dirname, "..", "..", "client", "dist"))

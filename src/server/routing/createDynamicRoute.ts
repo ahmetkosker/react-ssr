@@ -1,7 +1,11 @@
 import express, { Router, Request, Response } from "express";
 import { renderHtml } from "../helpers/renderHtml";
 import React from "react";
-import i18n from "../i18n";
+import {
+  createRequestI18n,
+  DEFAULT_LANGUAGE,
+  isSupportedLanguage,
+} from "../i18n";
 
 interface Metatag {
   title: string;
@@ -20,6 +24,25 @@ interface RouteConfig<T = unknown> {
 function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.RequestHandler {
   const router = Router();
 
+  const resolveLanguage = (request: Request): string => {
+    const cookieLanguage = request.cookies?.lang;
+    if (typeof cookieLanguage === "string" && isSupportedLanguage(cookieLanguage)) {
+      return cookieLanguage;
+    }
+
+    const acceptLanguage = request.headers["accept-language"];
+    if (typeof acceptLanguage !== "string") {
+      return DEFAULT_LANGUAGE;
+    }
+
+    const primaryLanguage = acceptLanguage.split(",")[0]?.split("-")[0]?.trim();
+    if (primaryLanguage && isSupportedLanguage(primaryLanguage)) {
+      return primaryLanguage;
+    }
+
+    return DEFAULT_LANGUAGE;
+  };
+
   router.get(config.path, async (req: Request, res: Response) => {
     try {
       if (config.auth) {
@@ -36,15 +59,8 @@ function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.Reques
         pageProps = await config.fetchInitialData(params);
       }
 
-      const lang = req.cookies.lang
-        ? req.cookies.lang
-        : i18n.languages.includes(
-            req.headers["accept-language"]?.split("-")[0] as string
-          )
-        ? req.headers["accept-language"]?.split("-")[0]
-        : "en";
-
-      await i18n.changeLanguage(lang);
+      const lang = resolveLanguage(req);
+      const requestI18n = await createRequestI18n(lang);
 
       const metatag = config.generateMetatag(pageProps.data);
 
@@ -53,7 +69,8 @@ function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.Reques
         config.id,
         metatag,
         pageProps,
-        lang
+        lang,
+        requestI18n
       );
 
       // res.cookie("jwt", "123123123", {
