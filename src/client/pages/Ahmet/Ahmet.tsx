@@ -19,10 +19,10 @@ const Ahmet: React.FC<AhmetProps> = ({ data }) => {
       <h1>Ahmet's Page</h1>
 
       <ul>
-        {users.map((user: User, i: number) => (
-          <a key={i} href={`user/${user.id}`} rel="noreferrer">
-            <li key={user.id}>{user.title}</li>
-          </a>
+        {users.map((user: User) => (
+          <li key={user.id}>
+            <a href={`/user/${user.id}`}>{user.title}</a>
+          </li>
         ))}
       </ul>
     </div>
