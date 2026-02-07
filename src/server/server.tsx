@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import compression from "compression";
 import path from "path";
 import cookieParser from "cookie-parser";
+import crypto from "crypto";
 import type { FC } from "react";
 import { createDynamicRoute } from "./routing/createDynamicRoute";
 import Home from "../client/pages/Home/Home";
@@ -72,7 +73,8 @@ async function sendServerRenderedPage<T>(
     metatag,
     { data: options.data },
     lang,
-    requestI18n
+    requestI18n,
+    typeof res.locals?.cspNonce === "string" ? res.locals.cspNonce : undefined
   );
 
   res.status(options.statusCode).set({ "Content-Type": "text/html" }).send(html);
@@ -80,6 +82,40 @@ async function sendServerRenderedPage<T>(
 
 app.use(cookieParser());
 app.use(compression());
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  const nonce = crypto.randomBytes(16).toString("base64");
+  res.locals.cspNonce = nonce;
+
+  const csp = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}'`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://jsonplaceholder.typicode.com",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "frame-ancestors 'none'",
+    "form-action 'self'",
+  ];
+
+  if (isProduction) {
+    csp.push("upgrade-insecure-requests");
+    res.setHeader(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains"
+    );
+  }
+
+  res.setHeader("Content-Security-Policy", csp.join("; "));
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+
+  next();
+});
 app.use(
   "/dist",
   express.static(path.join(__dirname, "..", "..", "client", "dist"))

@@ -75,7 +75,8 @@ function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.Reques
         metatag,
         htmlPageProps,
         lang,
-        requestI18n
+        requestI18n,
+        typeof res.locals?.cspNonce === "string" ? res.locals.cspNonce : undefined
       );
 
       // res.cookie("jwt", "123123123", {

@@ -23,7 +23,15 @@ function serializeForInlineScript(value) {
     .replace(/\u2029/g, "\\u2029");
 }
 
-export function renderHtml(Component, id, metatag, pageProps, lang, i18n) {
+export function renderHtml(
+  Component,
+  id,
+  metatag,
+  pageProps,
+  lang,
+  i18n,
+  cspNonce
+) {
   const appHtml = ReactDOMServer.renderToString(
     <I18nextProvider i18n={i18n}>
       <Component {...pageProps} />
@@ -41,6 +49,8 @@ export function renderHtml(Component, id, metatag, pageProps, lang, i18n) {
   const serializedPageProps = serializeForInlineScript(pageProps);
   const serializedLang = serializeForInlineScript(String(lang));
   const robotsContent = metatag.noindex ? "noindex, nofollow" : "index, follow";
+  const safeNonce = cspNonce ? escapeHtml(cspNonce) : "";
+  const nonceAttribute = safeNonce ? ` nonce="${safeNonce}"` : "";
 
   const html = `
     <!DOCTYPE html>
@@ -72,11 +82,11 @@ export function renderHtml(Component, id, metatag, pageProps, lang, i18n) {
       </head>
       <body>
         <div id="root">${appHtml}</div> 
-        <script>
+        <script${nonceAttribute}>
           window.__DATA__ = ${serializedPageProps};
           window.__LANG__ = ${serializedLang};
         </script>
-        <script src="/dist/${id}/client.js"></script>
+        <script${nonceAttribute} src="/dist/${id}/client.js"></script>
       </body>
     </html>
   `;
