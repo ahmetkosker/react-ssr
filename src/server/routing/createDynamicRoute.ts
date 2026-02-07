@@ -3,8 +3,7 @@ import { renderHtml } from "../helpers/renderHtml";
 import React from "react";
 import {
   createRequestI18n,
-  DEFAULT_LANGUAGE,
-  isSupportedLanguage,
+  resolveRequestLanguage,
 } from "../i18n";
 
 interface Metatag {
@@ -24,25 +23,6 @@ interface RouteConfig<T = unknown> {
 function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.RequestHandler {
   const router = Router();
 
-  const resolveLanguage = (request: Request): string => {
-    const cookieLanguage = request.cookies?.lang;
-    if (typeof cookieLanguage === "string" && isSupportedLanguage(cookieLanguage)) {
-      return cookieLanguage;
-    }
-
-    const acceptLanguage = request.headers["accept-language"];
-    if (typeof acceptLanguage !== "string") {
-      return DEFAULT_LANGUAGE;
-    }
-
-    const primaryLanguage = acceptLanguage.split(",")[0]?.split("-")[0]?.trim();
-    if (primaryLanguage && isSupportedLanguage(primaryLanguage)) {
-      return primaryLanguage;
-    }
-
-    return DEFAULT_LANGUAGE;
-  };
-
   router.get(config.path, async (req: Request, res: Response) => {
     try {
       if (config.auth) {
@@ -59,16 +39,28 @@ function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.Reques
         pageProps = await config.fetchInitialData(params);
       }
 
-      const lang = resolveLanguage(req);
+      const baseData =
+        pageProps.data &&
+        typeof pageProps.data === "object" &&
+        !Array.isArray(pageProps.data)
+          ? (pageProps.data as Record<string, unknown>)
+          : {};
+      const pageData = {
+        ...baseData,
+        currentPath: req.path,
+      } as T;
+
+      const htmlPageProps = { data: pageData };
+      const lang = resolveRequestLanguage(req);
       const requestI18n = await createRequestI18n(lang);
 
-      const metatag = config.generateMetatag(pageProps.data);
+      const metatag = config.generateMetatag(pageData);
 
       const html = renderHtml(
         config.component,
         config.id,
         metatag,
-        pageProps,
+        htmlPageProps,
         lang,
         requestI18n
       );

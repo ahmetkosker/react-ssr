@@ -1,31 +1,48 @@
 import React from "react";
 import { useCookies } from "react-cookie";
 import { useTranslation } from "react-i18next";
+import Layout from "../../components/Layout";
 
-const Home: React.FC = () => {
+interface HomeProps {
+  data: {
+    currentPath?: string;
+  };
+}
+
+const Home: React.FC<HomeProps> = ({ data }) => {
   const { t, i18n } = useTranslation();
-  const [cookies, setCookie] = useCookies(["lang"]);
+  const [, setCookie] = useCookies(["lang"]);
 
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
-      <button
-        onClick={() => {
-          i18n.changeLanguage("en");
-          setCookie("lang", "en");
-        }}
-      >
-        en
-      </button>
-      <button
-        onClick={() => {
-          i18n.changeLanguage("fr");
-          setCookie("lang", "fr");
-        }}
-      >
-        fr
-      </button>
-      <div>{t("welcomeMessage")}</div>
-    </div>
+    <Layout
+      title={t("welcomeMessage")}
+      subtitle={t("introduction")}
+      currentPath={data.currentPath}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-900 hover:text-slate-900"
+          onClick={() => {
+            i18n.changeLanguage("en");
+            setCookie("lang", "en");
+          }}
+          type="button"
+        >
+          English
+        </button>
+
+        <button
+          className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-900 hover:text-slate-900"
+          onClick={() => {
+            i18n.changeLanguage("fr");
+            setCookie("lang", "fr");
+          }}
+          type="button"
+        >
+          Francais
+        </button>
+      </div>
+    </Layout>
   );
 };
 

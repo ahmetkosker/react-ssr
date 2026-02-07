@@ -1,4 +1,5 @@
 import i18next, { i18n as I18nInstance } from "i18next";
+import type { Request } from "express";
 
 const resources = {
   en: {
@@ -29,6 +30,25 @@ export function isSupportedLanguage(
   language: string
 ): language is SupportedLanguage {
   return SUPPORTED_LANGUAGES.includes(language as SupportedLanguage);
+}
+
+export function resolveRequestLanguage(request: Pick<Request, "cookies" | "headers">): string {
+  const cookieLanguage = request.cookies?.lang;
+  if (typeof cookieLanguage === "string" && isSupportedLanguage(cookieLanguage)) {
+    return cookieLanguage;
+  }
+
+  const acceptLanguage = request.headers["accept-language"];
+  if (typeof acceptLanguage !== "string") {
+    return DEFAULT_LANGUAGE;
+  }
+
+  const primaryLanguage = acceptLanguage.split(",")[0]?.split("-")[0]?.trim();
+  if (primaryLanguage && isSupportedLanguage(primaryLanguage)) {
+    return primaryLanguage;
+  }
+
+  return DEFAULT_LANGUAGE;
 }
 
 export async function createRequestI18n(language: string): Promise<I18nInstance> {

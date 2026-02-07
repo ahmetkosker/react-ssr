@@ -1,4 +1,5 @@
 import React from "react";
+import Layout from "../../components/Layout";
 
 type User = {
   userId: number;
@@ -8,24 +9,34 @@ type User = {
 };
 
 interface AhmetProps {
-  data: User[];
+  data: {
+    users: User[];
+    currentPath?: string;
+  };
 }
 
 const Ahmet: React.FC<AhmetProps> = ({ data }) => {
-  const users = data;
+  const users = data?.users ?? [];
 
   return (
-    <div>
-      <h1>Ahmet's Page</h1>
-
-      <ul>
+    <Layout
+      title="Todos"
+      subtitle="Fetched from JSONPlaceholder"
+      currentPath={data?.currentPath}
+    >
+      <ul className="space-y-2">
         {users.map((user: User) => (
           <li key={user.id}>
-            <a href={`/user/${user.id}`}>{user.title}</a>
+            <a
+              className="block rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 hover:border-slate-900 hover:text-slate-900"
+              href={`/user/${user.id}`}
+            >
+              {user.title}
+            </a>
           </li>
         ))}
       </ul>
-    </div>
+    </Layout>
   );
 };
 
