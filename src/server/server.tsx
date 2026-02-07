@@ -8,9 +8,18 @@ import i18n from "./i18n";
 import Home from "../client/pages/Home/Home";
 import Ahmet from "../client/pages/Ahmet/Ahmet";
 import User from "../client/pages/User/User";
+import { fetchJson } from "./helpers/fetchJson";
 
 const app = express();
 const PORT = 3000;
+const ONE_DAY_MS = 1000 * 60 * 60 * 24;
+
+type Todo = {
+  userId: number;
+  id: number;
+  title: string;
+  completed: boolean;
+};
 
 app.use(cookieParser());
 app.use(compression());
@@ -39,14 +48,18 @@ app.use(
     component: Ahmet,
     generateMetatag: () => ({ title: "Ahmet", description: "Ahmet's Page" }),
     fetchInitialData: async () => {
-      const response = await fetch(
+      const data = await fetchJson<Todo[]>(
         "https://jsonplaceholder.typicode.com/todos"
       );
-      const data = await response.json();
       return { data };
     },
     auth: async (req, res) => {
-      res.cookie("token", "123456789");
+      res.cookie("token", "123456789", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: ONE_DAY_MS,
+      });
       return true;
     },
   })
@@ -64,11 +77,9 @@ app.use(
     fetchInitialData: async (params) => {
       const { id } = params || {};
 
-      const response = await fetch(
+      const data = await fetchJson<Todo>(
         `https://jsonplaceholder.typicode.com/todos/${id}`
       );
-
-      const data = await response.json();
 
       return { data };
     },
