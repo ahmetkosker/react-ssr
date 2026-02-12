@@ -1,6 +1,8 @@
 # React SSR
 
 This project provides a template for server-side rendering (SSR) with React.
+It is designed to help you bootstrap a scalable React SSR setup quickly.
+Use this repository as a clean starting point for both development and production workflows.
 
 ## Installation
 
