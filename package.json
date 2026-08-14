@@ -19,6 +19,7 @@
     "react-i18next": "^14.1.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/compression": "^1",
     "@types/cookie-parser": "^1",
     "@types/express": "^4.17.21",
@@ -30,17 +31,26 @@
     "@types/react-i18next": "^8.1.0",
     "concurrently": "^8.0.1",
     "esbuild": "^0.19.11",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.11.0",
     "nodemon": "^3.0.2",
+    "prettier": "^3.9.6",
     "tailwindcss": "^3.4.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.67.0"
   },
   "scripts": {
     "start": "node src/server/build/server.js",
     "typecheck": "tsc --noEmit",
-    "lint": "yarn typecheck",
+    "lint": "prettier --check . && eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write .",
     "test": "node --require ts-node/register --test tests/**/*.test.ts",
-    "ci": "yarn lint && yarn test && yarn build",
+    "ci": "yarn lint && yarn typecheck && yarn test && yarn build",
     "build:client": "esbuild src/client/pages/**/client.ts --bundle --minify --loader:.js=jsx --outdir=src/client/dist/",
     "build:server": "esbuild src/server/server.tsx --bundle --platform=node --loader:.js=jsx --outfile=src/server/build/server.js",
     "build:client:watch": "esbuild src/client/pages/**/client.ts --bundle --minify --loader:.js=jsx --outdir=src/client/dist/ --watch",

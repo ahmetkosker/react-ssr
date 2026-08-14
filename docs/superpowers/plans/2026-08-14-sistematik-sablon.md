@@ -20,8 +20,9 @@
 
 - [ ] **Step 1: DevDependency'leri kur**
 
-Run: `yarn add -D eslint @eslint/js typescript-eslint eslint-plugin-react eslint-plugin-react-hooks@^4 eslint-config-prettier prettier globals`
+Run: `yarn add -D eslint @eslint/js typescript-eslint eslint-plugin-react eslint-plugin-react-hooks eslint-config-prettier prettier globals`
 Expected: başarıyla kurulur, package.json devDependencies güncellenir.
+Not: `eslint-plugin-react-hooks` güncel sürüm (v5+) gerekir — v4, ESLint 9+ ile uyumsuzdur. Yeni sürümün `recommended` config'i React 19 compiler kurallarını içerdiğinden klasik iki kural (`rules-of-hooks`, `exhaustive-deps`) explicit tanımlanır.
 
 - [ ] **Step 2: Prettier config'leri yaz**
 
@@ -78,8 +79,9 @@ export default tseslint.config(
     },
     rules: {
       ...react.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
       "react/prop-types": "off",
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },

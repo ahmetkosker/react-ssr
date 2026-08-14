@@ -1,12 +1,14 @@
 import i18next, { i18n as I18nInstance } from "i18next";
 import type { Request } from "express";
+import translationEN from "../locales/en.json";
+import translationFR from "../locales/fr.json";
 
 const resources = {
   en: {
-    translations: require("../locales/en.json"),
+    translations: translationEN,
   },
   fr: {
-    translations: require("../locales/fr.json"),
+    translations: translationFR,
   },
 };
 

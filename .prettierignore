@@ -1,0 +1,5 @@
+src/client/dist
+src/server/build
+node_modules
+bin
+.yarn
