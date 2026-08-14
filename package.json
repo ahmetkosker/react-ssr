@@ -2,7 +2,6 @@
   "name": "react-ssr",
   "packageManager": "yarn@4.0.2",
   "version": "1.0.1",
-  "main": "index.js",
   "license": "MIT",
   "author": {
     "email": "exarons@gmail.com",
