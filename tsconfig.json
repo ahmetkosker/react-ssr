@@ -10,6 +10,10 @@
     "target": "es6", // compile to ES6
     "jsx": "react", // compile JSX to React.createElement statements for SSR
     "allowJs": true, // allow import of JS modules
+    "noUnusedLocals": true, // error on unused local variables
+    "noUnusedParameters": true, // error on unused function parameters
+    "noImplicitReturns": true, // error on codepaths that do not explicitly return
+    "noFallthroughCasesInSwitch": true, // error on switch fallthrough cases
     // enable strict type checking
     "strict": true,
     "strictNullChecks": true,

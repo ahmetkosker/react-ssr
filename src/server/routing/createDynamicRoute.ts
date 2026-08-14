@@ -26,7 +26,8 @@ function createDynamicRoute<T = unknown>(
         if (config.auth) {
           const isAuthenticated = await config.auth(req, res);
           if (!isAuthenticated) {
-            return res.status(401).send("Unauthorized");
+            res.status(401).send("Unauthorized");
+            return;
           }
         }
 
@@ -75,8 +76,10 @@ function createDynamicRoute<T = unknown>(
         );
 
         res.status(200).set({ "Content-Type": "text/html" }).send(html);
+        return;
       } catch (error) {
         next(error);
+        return;
       }
     },
   );
