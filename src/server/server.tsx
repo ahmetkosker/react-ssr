@@ -14,29 +14,9 @@ import { fetchJson } from "./helpers/fetchJson";
 import { config, isProduction } from "./config";
 import { createRequestI18n, resolveRequestLanguage } from "./i18n";
 import { renderHtml } from "./helpers/renderHtml";
+import type { Todo, HomeRouteData, TodoListRouteData, TodoDetailRouteData } from "../shared/types";
 
 const app = express();
-
-type Todo = {
-  userId: number;
-  id: number;
-  title: string;
-  completed: boolean;
-};
-
-interface HomeRouteData {
-  currentPath?: string;
-}
-
-interface AhmetRouteData {
-  users: Todo[];
-  currentPath?: string;
-}
-
-interface UserRouteData {
-  user: Todo;
-  currentPath?: string;
-}
 
 const STATIC_SITEMAP_PATHS = ["/", "/ahmet"];
 
@@ -82,6 +62,14 @@ async function sendServerRenderedPage<T>(
 
 app.use(cookieParser());
 app.use(compression());
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`);
+  });
+  next();
+});
 app.use((_req: Request, res: Response, next: NextFunction) => {
   const nonce = crypto.randomBytes(16).toString("base64");
   res.locals.cspNonce = nonce;
@@ -164,7 +152,7 @@ app.use(
 );
 
 app.use(
-  createDynamicRoute<AhmetRouteData>({
+  createDynamicRoute<TodoListRouteData>({
     path: "/ahmet",
     id: "Ahmet",
     component: Ahmet,
@@ -173,40 +161,31 @@ app.use(
       const data = await fetchJson<Todo[]>("https://jsonplaceholder.typicode.com/todos", {
         timeoutMs: config.fetchTimeoutMs,
       });
-      return { data: { users: data } };
-    },
-    auth: async (req, res) => {
-      res.cookie("token", "123456789", {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: "lax",
-        maxAge: config.cookieMaxAgeMs,
-      });
-      return true;
+      return { data: { todos: data } };
     },
   })
 );
 
 app.use(
-  createDynamicRoute<UserRouteData>({
+  createDynamicRoute<TodoDetailRouteData>({
     path: "/user/:id",
     id: "User",
     component: User,
     generateMetatag: (data) => ({
-      title: `Todo ${data.user.id}`,
-      description: `Details for todo ${data.user.id}: ${data.user.title}`,
+      title: `Todo ${data.todo.id}`,
+      description: `Details for todo ${data.todo.id}: ${data.todo.title}`,
     }),
     fetchInitialData: async (params) => {
       const { id } = params || {};
-      if (typeof id !== "string") {
-        throw new Error("User id is required");
+      if (typeof id !== "string" || !/^\d+$/.test(id)) {
+        throw new Error("A valid numeric todo id is required");
       }
 
       const data = await fetchJson<Todo>(`https://jsonplaceholder.typicode.com/todos/${id}`, {
         timeoutMs: config.fetchTimeoutMs,
       });
 
-      return { data: { user: data } };
+      return { data: { todo: data } };
     },
   })
 );
@@ -260,6 +239,17 @@ app.use(
   }
 );
 
-app.listen(config.port, () =>
+const server = app.listen(config.port, () =>
   console.log(`Server running on port ${config.port}`)
 );
+
+function shutdown(signal: string) {
+  console.log(`${signal} received, shutting down gracefully`);
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

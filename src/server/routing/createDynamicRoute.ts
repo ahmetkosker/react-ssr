@@ -79,13 +79,6 @@ function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.Reques
         typeof res.locals?.cspNonce === "string" ? res.locals.cspNonce : undefined
       );
 
-      // res.cookie("jwt", "123123123", {
-      //   httpOnly: true,
-      //   secure: true,
-      //   sameSite: "none",
-      //   maxAge: 1000 * 60 * 60 * 24,
-      // });
-
       res.status(200).set({ "Content-Type": "text/html" }).send(html);
     } catch (error) {
       console.error("Error in dynamic route:", error);

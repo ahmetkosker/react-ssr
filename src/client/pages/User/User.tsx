@@ -1,24 +1,13 @@
 import React from "react";
 import Layout from "../../components/Layout";
+import type { TodoDetailRouteData } from "../../../shared/types";
 
-type User = {
-  userId: number;
-  id: number;
-  title: string;
-  completed: boolean;
-};
-
-interface UserPageData {
-  user: User;
-  currentPath?: string;
-}
-
-const User: React.FC<{ data: UserPageData }> = ({ data }) => {
-  const user = data.user;
+const User: React.FC<{ data: TodoDetailRouteData }> = ({ data }) => {
+  const todo = data.todo;
 
   return (
     <Layout
-      title={`Todo #${user.id}`}
+      title={`Todo #${todo.id}`}
       subtitle="Todo detail"
       currentPath={data?.currentPath}
     >
@@ -32,11 +21,11 @@ const User: React.FC<{ data: UserPageData }> = ({ data }) => {
       <dl className="mt-6 grid gap-3 text-sm text-slate-700">
         <div className="rounded-lg border border-slate-200 px-4 py-3">
           <dt className="font-semibold text-slate-900">Title</dt>
-          <dd className="mt-1">{user.title}</dd>
+          <dd className="mt-1">{todo.title}</dd>
         </div>
         <div className="rounded-lg border border-slate-200 px-4 py-3">
           <dt className="font-semibold text-slate-900">Status</dt>
-          <dd className="mt-1">{user.completed ? "Completed" : "Pending"}</dd>
+          <dd className="mt-1">{todo.completed ? "Completed" : "Pending"}</dd>
         </div>
       </dl>
     </Layout>

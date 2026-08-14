@@ -1,22 +1,9 @@
 import React from "react";
 import Layout from "../../components/Layout";
+import type { TodoListRouteData } from "../../../shared/types";
 
-type User = {
-  userId: number;
-  id: number;
-  title: string;
-  completed: boolean;
-};
-
-interface AhmetProps {
-  data: {
-    users: User[];
-    currentPath?: string;
-  };
-}
-
-const Ahmet: React.FC<AhmetProps> = ({ data }) => {
-  const users = data?.users ?? [];
+const Ahmet: React.FC<{ data: TodoListRouteData }> = ({ data }) => {
+  const todos = data?.todos ?? [];
 
   return (
     <Layout
@@ -25,13 +12,13 @@ const Ahmet: React.FC<AhmetProps> = ({ data }) => {
       currentPath={data?.currentPath}
     >
       <ul className="space-y-2">
-        {users.map((user: User) => (
-          <li key={user.id}>
+        {todos.map((todo) => (
+          <li key={todo.id}>
             <a
               className="block rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 hover:border-slate-900 hover:text-slate-900"
-              href={`/user/${user.id}`}
+              href={`/user/${todo.id}`}
             >
-              {user.title}
+              {todo.title}
             </a>
           </li>
         ))}

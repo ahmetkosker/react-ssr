@@ -1,8 +1,18 @@
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
+import type { i18n as I18nInstance } from "i18next";
 
-const HTML_ESCAPE_MAP = {
+interface Metatag {
+  title: string;
+  description: string;
+  canonicalUrl?: string;
+  type?: "website" | "article";
+  noindex?: boolean;
+  siteName?: string;
+}
+
+const HTML_ESCAPE_MAP: Record<string, string> = {
   "&": "&amp;",
   "<": "&lt;",
   ">": "&gt;",
@@ -10,11 +20,11 @@ const HTML_ESCAPE_MAP = {
   "'": "&#39;",
 };
 
-function escapeHtml(value) {
+function escapeHtml(value: string): string {
   return String(value).replace(/[&<>"']/g, (char) => HTML_ESCAPE_MAP[char]);
 }
 
-function serializeForInlineScript(value) {
+function serializeForInlineScript(value: unknown): string {
   return JSON.stringify(value)
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
@@ -23,15 +33,15 @@ function serializeForInlineScript(value) {
     .replace(/\u2029/g, "\\u2029");
 }
 
-export function renderHtml(
-  Component,
-  id,
-  metatag,
-  pageProps,
-  lang,
-  i18n,
-  cspNonce
-) {
+export function renderHtml<T extends Record<string, unknown>>(
+  Component: React.ComponentType<T>,
+  id: string,
+  metatag: Metatag,
+  pageProps: T,
+  lang: string,
+  i18n: I18nInstance,
+  cspNonce?: string
+): string {
   const appHtml = ReactDOMServer.renderToString(
     <I18nextProvider i18n={i18n}>
       <Component {...pageProps} />
@@ -54,7 +64,7 @@ export function renderHtml(
 
   const html = `
     <!DOCTYPE html>
-    <html lang="${safeLang}"> 
+    <html lang="${safeLang}">
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -81,7 +91,7 @@ export function renderHtml(
         <link rel="stylesheet" href="/dist/bundle.css">
       </head>
       <body>
-        <div id="root">${appHtml}</div> 
+        <div id="root">${appHtml}</div>
         <script${nonceAttribute}>
           window.__DATA__ = ${serializedPageProps};
           window.__LANG__ = ${serializedLang};
