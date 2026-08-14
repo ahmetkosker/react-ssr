@@ -15,7 +15,12 @@ import { HttpError } from "./errors";
 import { config, isProduction } from "./config";
 import { createRequestI18n, resolveRequestLanguage } from "./i18n";
 import { renderHtml } from "./helpers/renderHtml";
-import type { Todo, HomeRouteData, TodoListRouteData, TodoDetailRouteData } from "../shared/types";
+import type {
+  Todo,
+  HomeRouteData,
+  TodoListRouteData,
+  TodoDetailRouteData,
+} from "../shared/types";
 
 const app = express();
 
@@ -54,7 +59,7 @@ async function sendServerRenderedPage<T>(
       siteName?: string;
     };
     data: T;
-  }
+  },
 ): Promise<void> {
   const lang = resolveRequestLanguage(req);
   const requestI18n = await createRequestI18n(lang);
@@ -72,10 +77,13 @@ async function sendServerRenderedPage<T>(
     { data: options.data },
     lang,
     requestI18n,
-    typeof res.locals?.cspNonce === "string" ? res.locals.cspNonce : undefined
+    typeof res.locals?.cspNonce === "string" ? res.locals.cspNonce : undefined,
   );
 
-  res.status(options.statusCode).set({ "Content-Type": "text/html" }).send(html);
+  res
+    .status(options.statusCode)
+    .set({ "Content-Type": "text/html" })
+    .send(html);
 }
 
 app.use(cookieParser());
@@ -84,7 +92,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   res.on("finish", () => {
     const duration = Date.now() - start;
-    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`);
+    console.log(
+      `${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`,
+    );
   });
   next();
 });
@@ -109,7 +119,7 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
     csp.push("upgrade-insecure-requests");
     res.setHeader(
       "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains"
+      "max-age=31536000; includeSubDomains",
     );
   }
 
@@ -124,7 +134,7 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
 });
 app.use(
   "/dist",
-  express.static(path.join(__dirname, "..", "..", "client", "dist"))
+  express.static(path.join(__dirname, "..", "..", "client", "dist")),
 );
 
 app.get("/robots.txt", (_req: Request, res: Response) => {
@@ -166,7 +176,7 @@ app.use(
       title: "Home",
       description: "Welcome to Home Page",
     }),
-  })
+  }),
 );
 
 app.use(
@@ -176,12 +186,15 @@ app.use(
     component: Ahmet,
     generateMetatag: () => ({ title: "Todos", description: "Todo list page" }),
     fetchInitialData: async () => {
-      const data = await fetchJson<Todo[]>("https://jsonplaceholder.typicode.com/todos", {
-        timeoutMs: config.fetchTimeoutMs,
-      });
+      const data = await fetchJson<Todo[]>(
+        "https://jsonplaceholder.typicode.com/todos",
+        {
+          timeoutMs: config.fetchTimeoutMs,
+        },
+      );
       return { data: { todos: data } };
     },
-  })
+  }),
 );
 
 app.use(
@@ -199,13 +212,16 @@ app.use(
         throw new HttpError(400, "A valid numeric todo id is required");
       }
 
-      const data = await fetchJson<Todo>(`https://jsonplaceholder.typicode.com/todos/${id}`, {
-        timeoutMs: config.fetchTimeoutMs,
-      });
+      const data = await fetchJson<Todo>(
+        `https://jsonplaceholder.typicode.com/todos/${id}`,
+        {
+          timeoutMs: config.fetchTimeoutMs,
+        },
+      );
 
       return { data: { todo: data } };
     },
-  })
+  }),
 );
 
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -220,47 +236,45 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-app.use(
-  (error: unknown, req: Request, res: Response, next: NextFunction) => {
-    console.error("Unhandled server error:", error);
-    if (res.headersSent) {
-      next(error);
-      return;
-    }
-
-    const status = error instanceof HttpError ? error.status : 500;
-    const message = error instanceof Error ? error.message : "Unknown error";
-
-    if (status === 404) {
-      void sendNotFoundPage(req, res).catch((renderError) => {
-        console.error("404 rendering error:", renderError);
-        res.status(404).send("Not Found");
-      });
-      return;
-    }
-
-    void sendServerRenderedPage(req, res, {
-      statusCode: status,
-      id: "Error",
-      component: ErrorPage,
-      metatag: {
-        title: `${status} | Server Error`,
-        description: "An unexpected server error occurred.",
-        noindex: true,
-      },
-      data: {
-        message,
-        currentPath: req.path,
-      },
-    }).catch((renderError) => {
-      console.error(`${status} rendering error:`, renderError);
-      res.status(status).send("Internal Server Error");
-    });
+app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
+  console.error("Unhandled server error:", error);
+  if (res.headersSent) {
+    next(error);
+    return;
   }
-);
+
+  const status = error instanceof HttpError ? error.status : 500;
+  const message = error instanceof Error ? error.message : "Unknown error";
+
+  if (status === 404) {
+    void sendNotFoundPage(req, res).catch((renderError) => {
+      console.error("404 rendering error:", renderError);
+      res.status(404).send("Not Found");
+    });
+    return;
+  }
+
+  void sendServerRenderedPage(req, res, {
+    statusCode: status,
+    id: "Error",
+    component: ErrorPage,
+    metatag: {
+      title: `${status} | Server Error`,
+      description: "An unexpected server error occurred.",
+      noindex: true,
+    },
+    data: {
+      message,
+      currentPath: req.path,
+    },
+  }).catch((renderError) => {
+    console.error(`${status} rendering error:`, renderError);
+    res.status(status).send("Internal Server Error");
+  });
+});
 
 const server = app.listen(config.port, () =>
-  console.log(`Server running on port ${config.port}`)
+  console.log(`Server running on port ${config.port}`),
 );
 
 function shutdown(signal: string) {

@@ -10,7 +10,8 @@ const NotFound: React.FC<{ data: NotFoundData }> = ({ data }) => {
       currentPath={data?.currentPath}
     >
       <p className="text-sm text-slate-600">
-        Requested path: <span className="font-mono text-slate-900">{data.path}</span>
+        Requested path:{" "}
+        <span className="font-mono text-slate-900">{data.path}</span>
       </p>
 
       <a

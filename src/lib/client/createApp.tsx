@@ -16,7 +16,7 @@ interface CreateAppProps<T = unknown> {
   Page: React.ComponentType<{ data: T }>;
 }
 
-export const createApp = <T = unknown>({ Page }: CreateAppProps<T>) => {
+export const createApp = <T = unknown,>({ Page }: CreateAppProps<T>) => {
   const initialLang = window.__LANG__;
   i18n.changeLanguage(initialLang);
 
@@ -25,7 +25,7 @@ export const createApp = <T = unknown>({ Page }: CreateAppProps<T>) => {
       document.getElementById("root")!,
       <I18nextProvider i18n={i18n}>
         <Page {...(pageProps as { data: T })} />
-      </I18nextProvider>
+      </I18nextProvider>,
     );
   });
 };

@@ -15,6 +15,7 @@
 ### Task 1: ESLint + Prettier kurulumu ve script'ler
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `eslint.config.mjs`, `.prettierrc.json`, `.prettierignore`
 
@@ -27,6 +28,7 @@ Not: `eslint-plugin-react-hooks` güncel sürüm (v5+) gerekir — v4, ESLint 9+
 - [ ] **Step 2: Prettier config'leri yaz**
 
 `.prettierrc.json`:
+
 ```json
 {
   "trailingComma": "all",
@@ -37,6 +39,7 @@ Not: `eslint-plugin-react-hooks` güncel sürüm (v5+) gerekir — v4, ESLint 9+
 ```
 
 `.prettierignore`:
+
 ```
 src/client/dist
 src/server/build
@@ -48,6 +51,7 @@ bin
 - [ ] **Step 3: ESLint flat config yaz**
 
 `eslint.config.mjs`:
+
 ```js
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
@@ -58,7 +62,12 @@ import globals from "globals";
 
 export default tseslint.config(
   {
-    ignores: ["src/client/dist/**", "src/server/build/**", "bin/**", "node_modules/**"],
+    ignores: [
+      "src/client/dist/**",
+      "src/server/build/**",
+      "bin/**",
+      "node_modules/**",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -94,7 +103,7 @@ export default tseslint.config(
       globals: globals.node,
     },
   },
-  prettier
+  prettier,
 );
 ```
 
@@ -149,11 +158,13 @@ git commit -m "style: format codebase with Prettier"
 ### Task 3: Strict TypeScript bayrakları
 
 **Files:**
+
 - Modify: `tsconfig.json`
 
 - [ ] **Step 1: Bayrakları aç**
 
 `compilerOptions` içine ekle:
+
 ```json
 "noUnusedLocals": true,
 "noUnusedParameters": true,
@@ -206,12 +217,14 @@ git commit -m "lint: fix ESLint issues"
 ### Task 5: Config fail-fast doğrulama
 
 **Files:**
+
 - Modify: `src/server/config.ts`
 - Create: `tests/server/configValidation.test.ts`
 
 - [ ] **Step 1: Failing testleri yaz**
 
 `tests/server/configValidation.test.ts` (config modülü require cache'den silinerek env değişkenleriyle yeniden yüklenir):
+
 ```ts
 import assert from "node:assert/strict";
 import { describe, test, afterEach } from "node:test";
@@ -219,9 +232,18 @@ import { describe, test, afterEach } from "node:test";
 // Not: require.resolve ile .ts uzantılı gerçek modül yolunu al (require.cache anahtarı budur)
 const configModulePath = require.resolve("../../src/server/config");
 
-const ENV_KEYS = ["PORT", "FETCH_TIMEOUT_MS", "COOKIE_MAX_AGE_MS", "PUBLIC_BASE_URL", "SITE_NAME", "NODE_ENV"] as const;
+const ENV_KEYS = [
+  "PORT",
+  "FETCH_TIMEOUT_MS",
+  "COOKIE_MAX_AGE_MS",
+  "PUBLIC_BASE_URL",
+  "SITE_NAME",
+  "NODE_ENV",
+] as const;
 
-const snapshot = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
+const snapshot = Object.fromEntries(
+  ENV_KEYS.map((key) => [key, process.env[key]]),
+);
 
 afterEach(() => {
   for (const key of ENV_KEYS) {
@@ -252,13 +274,25 @@ describe("config validation", () => {
   });
 
   test("throws when FETCH_TIMEOUT_MS is zero or negative", () => {
-    assert.throws(() => loadConfig({ FETCH_TIMEOUT_MS: "0" }), /FETCH_TIMEOUT_MS/);
-    assert.throws(() => loadConfig({ FETCH_TIMEOUT_MS: "-5" }), /FETCH_TIMEOUT_MS/);
+    assert.throws(
+      () => loadConfig({ FETCH_TIMEOUT_MS: "0" }),
+      /FETCH_TIMEOUT_MS/,
+    );
+    assert.throws(
+      () => loadConfig({ FETCH_TIMEOUT_MS: "-5" }),
+      /FETCH_TIMEOUT_MS/,
+    );
   });
 
   test("throws when PUBLIC_BASE_URL is not a valid http(s) URL", () => {
-    assert.throws(() => loadConfig({ PUBLIC_BASE_URL: "not-a-url" }), /PUBLIC_BASE_URL/);
-    assert.throws(() => loadConfig({ PUBLIC_BASE_URL: "ftp://example.com" }), /PUBLIC_BASE_URL/);
+    assert.throws(
+      () => loadConfig({ PUBLIC_BASE_URL: "not-a-url" }),
+      /PUBLIC_BASE_URL/,
+    );
+    assert.throws(
+      () => loadConfig({ PUBLIC_BASE_URL: "ftp://example.com" }),
+      /PUBLIC_BASE_URL/,
+    );
   });
 
   test("throws when SITE_NAME is empty", () => {
@@ -281,11 +315,12 @@ Expected: FAIL (henüz throw yok).
 - [ ] **Step 3: Implementasyon**
 
 `src/server/config.ts`:
+
 ```ts
 const parseNumber = (
   envName: string,
   rawValue: string | undefined,
-  fallback: number
+  fallback: number,
 ): number => {
   if (!rawValue) {
     return fallback;
@@ -313,21 +348,31 @@ if (port < 1 || port > 65535) {
   throw new Error(`Invalid PORT: ${port} must be between 1 and 65535`);
 }
 
-const resolvePublicBaseUrl = (rawValue: string | undefined, fallback: string): string => {
+const resolvePublicBaseUrl = (
+  rawValue: string | undefined,
+  fallback: string,
+): string => {
   const candidate = trimTrailingSlash(rawValue || fallback);
   let parsed: URL;
   try {
     parsed = new URL(candidate);
   } catch {
-    throw new Error(`Invalid PUBLIC_BASE_URL: "${candidate}" is not a valid URL`);
+    throw new Error(
+      `Invalid PUBLIC_BASE_URL: "${candidate}" is not a valid URL`,
+    );
   }
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    throw new Error(`Invalid PUBLIC_BASE_URL: "${candidate}" must use http or https`);
+    throw new Error(
+      `Invalid PUBLIC_BASE_URL: "${candidate}" must use http or https`,
+    );
   }
   return candidate;
 };
 
-const resolveSiteName = (rawValue: string | undefined, fallback: string): string => {
+const resolveSiteName = (
+  rawValue: string | undefined,
+  fallback: string,
+): string => {
   const siteName = rawValue ?? fallback;
   if (siteName.trim() === "") {
     throw new Error("Invalid SITE_NAME: must not be empty");
@@ -338,9 +383,22 @@ const resolveSiteName = (rawValue: string | undefined, fallback: string): string
 export const config = {
   env: process.env.NODE_ENV ?? "development",
   port,
-  fetchTimeoutMs: requirePositive("FETCH_TIMEOUT_MS", parseNumber("FETCH_TIMEOUT_MS", process.env.FETCH_TIMEOUT_MS, 8000)),
-  cookieMaxAgeMs: requirePositive("COOKIE_MAX_AGE_MS", parseNumber("COOKIE_MAX_AGE_MS", process.env.COOKIE_MAX_AGE_MS, 1000 * 60 * 60 * 24)),
-  publicBaseUrl: resolvePublicBaseUrl(process.env.PUBLIC_BASE_URL, `http://localhost:${port}`),
+  fetchTimeoutMs: requirePositive(
+    "FETCH_TIMEOUT_MS",
+    parseNumber("FETCH_TIMEOUT_MS", process.env.FETCH_TIMEOUT_MS, 8000),
+  ),
+  cookieMaxAgeMs: requirePositive(
+    "COOKIE_MAX_AGE_MS",
+    parseNumber(
+      "COOKIE_MAX_AGE_MS",
+      process.env.COOKIE_MAX_AGE_MS,
+      1000 * 60 * 60 * 24,
+    ),
+  ),
+  publicBaseUrl: resolvePublicBaseUrl(
+    process.env.PUBLIC_BASE_URL,
+    `http://localhost:${port}`,
+  ),
   siteName: resolveSiteName(process.env.SITE_NAME, "React SSR"),
 };
 
@@ -364,6 +422,7 @@ git commit -m "feat: fail fast on invalid environment configuration"
 ### Task 6: .env.example ve README env bölümü
 
 **Files:**
+
 - Create: `.env.example`
 - Modify: `README.md`
 
@@ -403,6 +462,7 @@ git commit -m "docs: document environment variables in README and .env.example"
 ### Task 7: Node sürümü sabitleme
 
 **Files:**
+
 - Create: `.nvmrc`
 - Modify: `package.json`
 
@@ -411,6 +471,7 @@ git commit -m "docs: document environment variables in README and .env.example"
 `.nvmrc`: içerik `20`
 
 `package.json` içine (version alanından sonra):
+
 ```json
 "engines": {
   "node": ">=20"
@@ -434,6 +495,7 @@ git commit -m "chore: pin Node version with .nvmrc and engines"
 ### Task 8: Dev sourcemap'leri
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Watch script'lerini güncelle**
@@ -442,6 +504,7 @@ git commit -m "chore: pin Node version with .nvmrc and engines"
 "build:client:watch": "esbuild src/client/pages/**/client.ts --bundle --sourcemap --loader:.js=jsx --outdir=src/client/dist/ --watch",
 "build:server:watch": "esbuild src/server/server.tsx --bundle --platform=node --sourcemap --loader:.js=jsx --outfile=src/server/build/server.js --watch",
 ```
+
 (`build:client:watch`'tan `--minify` kaldırılır — dev'de okunabilir bundle + sourcemap.)
 
 - [ ] **Step 2: Smoke test**
@@ -461,6 +524,7 @@ git commit -m "dev: add sourcemaps and drop minification in watch builds"
 ### Task 9: prestart build kontrolü
 
 **Files:**
+
 - Create: `scripts/checkBuild.mjs`
 - Modify: `package.json`
 
@@ -476,7 +540,11 @@ const requiredFiles = [
 
 const missing = requiredFiles.filter((file) => !existsSync(file));
 
-const hasClientBundles = existsSync("src/client/dist") && readdirSync("src/client/dist", { recursive: true }).some((entry) => String(entry).endsWith(".js"));
+const hasClientBundles =
+  existsSync("src/client/dist") &&
+  readdirSync("src/client/dist", { recursive: true }).some((entry) =>
+    String(entry).endsWith(".js"),
+  );
 
 if (missing.length > 0 || !hasClientBundles) {
   console.error("Compiled assets are missing:");
@@ -512,6 +580,7 @@ git commit -m "feat: fail with clear message when starting without build"
 ### Task 10: generate:page scaffolding script'i
 
 **Files:**
+
 - Modify: `src/server/server.tsx` (marker'lar eklenir)
 - Modify: `src/shared/types.ts` (marker eklenir)
 - Modify: `package.json` (script)
@@ -522,6 +591,7 @@ git commit -m "feat: fail with clear message when starting without build"
 
 `src/shared/types.ts` sonuna: `// GENERATE:TYPE`
 `src/server/server.tsx`:
+
 - page import'larının olduğu bloğa (import satırlarından sonra): `// GENERATE:IMPORT`
 - 404 catch-all'dan hemen önce: `// GENERATE:ROUTE`
 
@@ -535,6 +605,7 @@ git commit -m "chore: add generation markers for page scaffolding"
 - [ ] **Step 2: Failing testleri yaz**
 
 `tests/scripts/generatePage.test.ts` (saf fonksiyonlar + tmp dizinde entegrasyon):
+
 ```ts
 import assert from "node:assert/strict";
 import { describe, test, afterEach } from "node:test";
@@ -570,7 +641,7 @@ function createFixture(): string {
       "// GENERATE:IMPORT",
       "// GENERATE:ROUTE",
       "app.use((req, res, next) => { next(); });",
-    ].join("\n")
+    ].join("\n"),
   );
   return dir;
 }
@@ -606,27 +677,45 @@ describe("generatePage", () => {
     assert.ok(fs.existsSync(pageFile));
     assert.ok(fs.existsSync(clientFile));
     assert.match(fs.readFileSync(pageFile, "utf8"), /const Demo: React\.FC/);
-    assert.match(fs.readFileSync(clientFile, "utf8"), /createApp\(\{ Page: Demo \}\)/);
+    assert.match(
+      fs.readFileSync(clientFile, "utf8"),
+      /createApp\(\{ Page: Demo \}\)/,
+    );
 
-    const types = fs.readFileSync(path.join(dir, "src/shared/types.ts"), "utf8");
+    const types = fs.readFileSync(
+      path.join(dir, "src/shared/types.ts"),
+      "utf8",
+    );
     assert.match(types, /export interface DemoRouteData/);
 
-    const server = fs.readFileSync(path.join(dir, "src/server/server.tsx"), "utf8");
+    const server = fs.readFileSync(
+      path.join(dir, "src/server/server.tsx"),
+      "utf8",
+    );
     assert.match(server, /import Demo from "\.\.\/client\/pages\/Demo\/Demo";/);
-    assert.match(server, /import type \{ DemoRouteData \} from "\.\.\/shared\/types";/);
+    assert.match(
+      server,
+      /import type \{ DemoRouteData \} from "\.\.\/shared\/types";/,
+    );
     assert.match(server, /createDynamicRoute<DemoRouteData>/);
     assert.match(server, /path: "\/demo"/);
   });
 
   test("rejects invalid names", () => {
     const dir = createFixture();
-    assert.throws(() => generatePage("demo", { rootDir: dir, format: false }), /PascalCase/);
+    assert.throws(
+      () => generatePage("demo", { rootDir: dir, format: false }),
+      /PascalCase/,
+    );
   });
 
   test("refuses to overwrite an existing page", () => {
     const dir = createFixture();
     generatePage("Demo", { rootDir: dir, format: false });
-    assert.throws(() => generatePage("Demo", { rootDir: dir, format: false }), /already exists/);
+    assert.throws(
+      () => generatePage("Demo", { rootDir: dir, format: false }),
+      /already exists/,
+    );
   });
 });
 ```
@@ -639,6 +728,7 @@ Expected: FAIL (dosya yok).
 - [ ] **Step 4: Script'i yaz**
 
 `scripts/generatePage.ts`:
+
 ```ts
 import fs from "node:fs";
 import path from "node:path";
@@ -652,16 +742,22 @@ interface GenerateOptions {
 export function validatePageName(name: string): string[] {
   const errors: string[] = [];
   if (!/^[A-Z][A-Za-z0-9]*$/.test(name)) {
-    errors.push(`"${name}" is not a valid PascalCase page name (e.g. "TodoList")`);
+    errors.push(
+      `"${name}" is not a valid PascalCase page name (e.g. "TodoList")`,
+    );
   }
   return errors;
 }
 
 export function toKebabCase(name: string): string {
-  return name.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`).replace(/^-/, "");
+  return name
+    .replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)
+    .replace(/^-/, "");
 }
 
-const pageComponentTemplate = (name: string): string => `import React from "react";
+const pageComponentTemplate = (
+  name: string,
+): string => `import React from "react";
 import Layout from "../../components/Layout";
 import type { ${name}RouteData } from "../../../shared/types";
 
@@ -676,7 +772,9 @@ const ${name}: React.FC<{ data: ${name}RouteData }> = ({ data }) => {
 export default ${name};
 `;
 
-const clientEntryTemplate = (name: string): string => `import { createApp } from "../../../lib/client/createApp";
+const clientEntryTemplate = (
+  name: string,
+): string => `import { createApp } from "../../../lib/client/createApp";
 import ${name} from "./${name}";
 
 createApp({ Page: ${name} });
@@ -712,7 +810,10 @@ export function generatePage(name: string, options: GenerateOptions): void {
   }
 
   fs.mkdirSync(pageDir, { recursive: true });
-  fs.writeFileSync(path.join(pageDir, `${name}.tsx`), pageComponentTemplate(name));
+  fs.writeFileSync(
+    path.join(pageDir, `${name}.tsx`),
+    pageComponentTemplate(name),
+  );
   fs.writeFileSync(path.join(pageDir, "client.ts"), clientEntryTemplate(name));
 
   const typesPath = path.join(rootDir, "src/shared/types.ts");
@@ -722,19 +823,30 @@ export function generatePage(name: string, options: GenerateOptions): void {
   insertAtMarker(
     serverPath,
     "// GENERATE:IMPORT",
-    `import ${name} from "../client/pages/${name}/${name}";\nimport type { ${name}RouteData } from "../shared/types";\n`
+    `import ${name} from "../client/pages/${name}/${name}";\nimport type { ${name}RouteData } from "../shared/types";\n`,
   );
-  insertAtMarker(serverPath, "// GENERATE:ROUTE", routeRegistrationTemplate(name));
+  insertAtMarker(
+    serverPath,
+    "// GENERATE:ROUTE",
+    routeRegistrationTemplate(name),
+  );
 
   if (options.format) {
-    execSync(`yarn prettier --write "${pageDir}" "${typesPath}" "${serverPath}"`, {
-      cwd: rootDir,
-      stdio: "inherit",
-    });
+    execSync(
+      `yarn prettier --write "${pageDir}" "${typesPath}" "${serverPath}"`,
+      {
+        cwd: rootDir,
+        stdio: "inherit",
+      },
+    );
   }
 }
 
-function insertAtMarker(filePath: string, marker: string, content: string): void {
+function insertAtMarker(
+  filePath: string,
+  marker: string,
+  content: string,
+): void {
   const source = fs.readFileSync(filePath, "utf8");
   if (!source.includes(marker)) {
     throw new Error(`Marker "${marker}" not found in ${filePath}`);
@@ -745,7 +857,9 @@ function insertAtMarker(filePath: string, marker: string, content: string): void
 function main(): void {
   const name = process.argv[2];
   if (!name) {
-    console.error('Usage: yarn generate:page <Name>\nExample: yarn generate:page TodoList');
+    console.error(
+      "Usage: yarn generate:page <Name>\nExample: yarn generate:page TodoList",
+    );
     process.exit(1);
   }
   try {
@@ -790,6 +904,7 @@ git commit -m "feat: add generate:page scaffolding script"
 ### Task 11: CONTRIBUTING.md ve dokümantasyon
 
 **Files:**
+
 - Create: `CONTRIBUTING.md`
 - Modify: `README.md`, `AGENTS.md`
 

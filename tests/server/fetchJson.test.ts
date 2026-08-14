@@ -37,7 +37,7 @@ test("fetchJson throws HttpError with upstream status on non-success responses",
       assert.equal(error.status, 503);
       assert.match(error.message, /Request failed with status 503/);
       return true;
-    }
+    },
   );
 });
 
@@ -55,7 +55,7 @@ test("fetchJson throws HttpError 404 for missing resources", async () => {
       assert.ok(error instanceof HttpError);
       assert.equal(error.status, 404);
       return true;
-    }
+    },
   );
 });
 
@@ -76,6 +76,6 @@ test("fetchJson throws HttpError 504 when request times out", async () => {
       assert.equal(error.status, 504);
       assert.match(error.message, /timed out after 10ms/);
       return true;
-    }
+    },
   );
 });

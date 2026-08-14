@@ -14,7 +14,10 @@ const navItems: NavItem[] = [
   { href: "/ahmet", label: "Todos" },
 ];
 
-const isActivePath = (currentPath: string | undefined, href: string): boolean => {
+const isActivePath = (
+  currentPath: string | undefined,
+  href: string,
+): boolean => {
   if (!currentPath) {
     return false;
   }
@@ -30,7 +33,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentPath }) => {
   return (
     <header className="border-b border-slate-200 bg-white/85 backdrop-blur">
       <nav className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
-        <a className="text-lg font-semibold tracking-tight text-slate-900" href="/">
+        <a
+          className="text-lg font-semibold tracking-tight text-slate-900"
+          href="/"
+        >
           React SSR
         </a>
 

@@ -24,7 +24,9 @@ const Layout: React.FC<LayoutProps> = ({
             {title}
           </h1>
           {subtitle ? (
-            <p className="mt-2 text-sm text-slate-600 sm:text-base">{subtitle}</p>
+            <p className="mt-2 text-sm text-slate-600 sm:text-base">
+              {subtitle}
+            </p>
           ) : null}
         </section>
 

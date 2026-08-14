@@ -32,12 +32,12 @@ export function renderHtml<T extends Record<string, unknown>>(
   pageProps: T,
   lang: string,
   i18n: I18nInstance,
-  cspNonce?: string
+  cspNonce?: string,
 ): string {
   const appHtml = ReactDOMServer.renderToString(
     <I18nextProvider i18n={i18n}>
       <Component {...pageProps} />
-    </I18nextProvider>
+    </I18nextProvider>,
   );
 
   const safeTitle = escapeHtml(metatag.title);

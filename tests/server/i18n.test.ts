@@ -7,7 +7,10 @@ import {
   SUPPORTED_LANGUAGES,
 } from "../../src/server/i18n";
 
-function fakeRequest(cookies: Record<string, string> = {}, acceptLanguage?: string) {
+function fakeRequest(
+  cookies: Record<string, string> = {},
+  acceptLanguage?: string,
+) {
   return {
     cookies,
     headers: acceptLanguage ? { "accept-language": acceptLanguage } : {},

@@ -50,6 +50,7 @@ To start the compiled server code, use:
 ```bash
 yarn start
 ```
+
 ## Contact
 
 For any questions or feedback regarding the project, please feel free to reach out to [Ahmet Köşker](https://github.com/ahmetkosker) via email at exarons@gmail.com.

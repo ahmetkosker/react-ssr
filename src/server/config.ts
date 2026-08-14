@@ -1,4 +1,7 @@
-const parseNumber = (rawValue: string | undefined, fallback: number): number => {
+const parseNumber = (
+  rawValue: string | undefined,
+  fallback: number,
+): number => {
   if (!rawValue) {
     return fallback;
   }
@@ -15,9 +18,12 @@ export const config = {
   env: process.env.NODE_ENV ?? "development",
   port,
   fetchTimeoutMs: parseNumber(process.env.FETCH_TIMEOUT_MS, 8000),
-  cookieMaxAgeMs: parseNumber(process.env.COOKIE_MAX_AGE_MS, 1000 * 60 * 60 * 24),
+  cookieMaxAgeMs: parseNumber(
+    process.env.COOKIE_MAX_AGE_MS,
+    1000 * 60 * 60 * 24,
+  ),
   publicBaseUrl: trimTrailingSlash(
-    process.env.PUBLIC_BASE_URL ?? `http://localhost:${port}`
+    process.env.PUBLIC_BASE_URL ?? `http://localhost:${port}`,
   ),
   siteName: process.env.SITE_NAME ?? "React SSR",
 };
