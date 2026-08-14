@@ -47,7 +47,7 @@
     "typescript-eslint": "^8.67.0"
   },
   "scripts": {
-    "start": "node src/server/build/server.js",
+    "start": "node scripts/checkBuild.mjs && node src/server/build/server.js",
     "typecheck": "tsc --noEmit",
     "lint": "prettier --check . && eslint .",
     "lint:fix": "eslint --fix .",
