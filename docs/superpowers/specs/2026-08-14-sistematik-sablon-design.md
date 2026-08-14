@@ -26,7 +26,7 @@ sıfır sürtünmeli dev deneyimi ve katkı rehberi.
 
 ### 2. Scaffolding: `yarn generate:page <Name>`
 
-- `scripts/generatePage.mjs` (saf Node, ek bağımlılık yok):
+- `scripts/generatePage.ts` (ts-node ile çalışır; ts-node zaten devDep — doğrulama fonksiyonları test edilebilir şekilde export edilir):
   - İsim doğrulama: PascalCase ve benzersizlik; ihlalde net hata mesajı.
   - Üretir:
     - `src/client/pages/<Name>/<Name>.tsx` (Layout'lu sayfa bileşeni)
