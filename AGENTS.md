@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Komutlar
-- `yarn start:dev` — geliştirme sunucusu: esbuild watch (client+server) + Tailwind watch + nodemon. Önce derler, sonra `src/server/build/server.js` çalıştırır.
+- `yarn start:dev` — geliştirme sunucusu: önce `yarn build`, sonra esbuild watch (client+server) + Tailwind watch + nodemon (`nodemon.json` config'i ile).
 - `yarn build` — client sayfalarını, sunucuyu ve Tailwind CSS'i gitignored klasörlere derler. `yarn start` öncesi zorunlu (artifaktlar repoya commit edilmez).
 - `yarn start` — yalnızca derlenmiş sunucuyu çalıştırır; `yarn build` yapılmadıysa hata verir.
 - `yarn typecheck` / `yarn lint` — `lint`, `tsc --noEmit` için bir alias'tır; ESLint/Prettier yoktur.

@@ -1,8 +1,7 @@
 {
-  "watch": [
-    "src/client/**/*.{js,jsx,ts,tsx}",
-    "src/server/**/*.{js,jsx,ts,tsx}"
-  ],
+  "watch": ["src"],
+  "ext": "js,jsx,ts,tsx,json",
   "ignore": ["src/client/dist/*", "src/server/build/*"],
-  "exec": "yarn build && yarn start"
+  "delay": "2",
+  "exec": "node src/server/build/server.js"
 }
