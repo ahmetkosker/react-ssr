@@ -79,6 +79,7 @@ export default tseslint.config(
     rules: {
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+      "react/prop-types": "off",
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
@@ -488,9 +489,10 @@ if (missing.length > 0 || !hasClientBundles) {
 }
 ```
 
-- [ ] **Step 2: prestart hook'u ekle**
+- [ ] **Step 2: start script'ine göm**
 
-`package.json` scripts: `"prestart": "node scripts/checkBuild.mjs"` (Yarn, `start`'tan önce otomatik çalıştırır).
+`package.json` scripts: `"start": "node scripts/checkBuild.mjs && node src/server/build/server.js"`
+Not: Yarn 4, npm'in `prestart`/`poststart` hook'larını desteklemez — kontrol doğrudan `start` script'inde olmalı.
 
 - [ ] **Step 3: Test et**
 
@@ -817,17 +819,22 @@ git commit -m "docs: add CONTRIBUTING guide and update README and AGENTS.md"
 
 ### Task 12: Final doğrulama
 
-- [ ] **Step 1: Tüm zincir**
+- [ ] **Step 1: Yeni dosyaları formatla**
+
+Run: `yarn format`
+Expected: tüm dosyalar (inline yazılmış yeniler dahil) Prettier uyumlu olur.
+
+- [ ] **Step 2: Tüm zincir**
 
 Run: `yarn ci`
 Expected: lint → typecheck → test → build hepsi PASS.
 
-- [ ] **Step 2: Smoke test**
+- [ ] **Step 3: Smoke test**
 
 Run: `timeout 15 yarn start:dev`
-Expected: server ayağa kalkar. `yarn start` prestart ile build'siz çalışmaz, build'li çalışır.
+Expected: server ayağa kalkar. `yarn start` build'siz çalışmaz (net hata), build'li çalışır.
 
-- [ ] **Step 3: Working tree temizliği**
+- [ ] **Step 4: Working tree temizliği**
 
 Run: `git status --short`
 Expected: temiz.
