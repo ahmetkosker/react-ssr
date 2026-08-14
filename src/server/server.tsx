@@ -11,6 +11,7 @@ import User from "../client/pages/User/User";
 import NotFound from "../client/pages/NotFound/NotFound";
 import ErrorPage from "../client/pages/Error/ErrorPage";
 import { fetchJson } from "./helpers/fetchJson";
+import { HttpError } from "./errors";
 import { config, isProduction } from "./config";
 import { createRequestI18n, resolveRequestLanguage } from "./i18n";
 import { renderHtml } from "./helpers/renderHtml";
@@ -19,6 +20,23 @@ import type { Todo, HomeRouteData, TodoListRouteData, TodoDetailRouteData } from
 const app = express();
 
 const STATIC_SITEMAP_PATHS = ["/", "/ahmet"];
+
+function sendNotFoundPage(req: Request, res: Response): Promise<void> {
+  return sendServerRenderedPage(req, res, {
+    statusCode: 404,
+    id: "NotFound",
+    component: NotFound,
+    metatag: {
+      title: "404 | Not Found",
+      description: "The requested page could not be found.",
+      noindex: true,
+    },
+    data: {
+      path: req.path,
+      currentPath: req.path,
+    },
+  });
+}
 
 async function sendServerRenderedPage<T>(
   req: Request,
@@ -191,20 +209,7 @@ app.use(
 );
 
 app.use((req: Request, res: Response) => {
-  void sendServerRenderedPage(req, res, {
-    statusCode: 404,
-    id: "NotFound",
-    component: NotFound,
-    metatag: {
-      title: "404 | Not Found",
-      description: "The requested page could not be found.",
-      noindex: true,
-    },
-    data: {
-      path: req.path,
-      currentPath: req.path,
-    },
-  }).catch((error) => {
+  void sendNotFoundPage(req, res).catch((error) => {
     console.error("404 rendering error:", error);
     res.status(404).send("Not Found");
   });
@@ -218,13 +223,23 @@ app.use(
       return;
     }
 
+    const status = error instanceof HttpError ? error.status : 500;
     const message = error instanceof Error ? error.message : "Unknown error";
+
+    if (status === 404) {
+      void sendNotFoundPage(req, res).catch((renderError) => {
+        console.error("404 rendering error:", renderError);
+        res.status(404).send("Not Found");
+      });
+      return;
+    }
+
     void sendServerRenderedPage(req, res, {
-      statusCode: 500,
+      statusCode: status,
       id: "Error",
       component: ErrorPage,
       metatag: {
-        title: "500 | Server Error",
+        title: `${status} | Server Error`,
         description: "An unexpected server error occurred.",
         noindex: true,
       },
@@ -233,8 +248,8 @@ app.use(
         currentPath: req.path,
       },
     }).catch((renderError) => {
-      console.error("500 rendering error:", renderError);
-      res.status(500).send("Internal Server Error");
+      console.error(`${status} rendering error:`, renderError);
+      res.status(status).send("Internal Server Error");
     });
   }
 );

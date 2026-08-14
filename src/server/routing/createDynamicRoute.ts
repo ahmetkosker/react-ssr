@@ -1,4 +1,4 @@
-import express, { Router, Request, Response } from "express";
+import express, { Router, Request, Response, NextFunction } from "express";
 import { renderHtml } from "../helpers/renderHtml";
 import React from "react";
 import {
@@ -28,7 +28,7 @@ interface RouteConfig<T = unknown> {
 function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.RequestHandler {
   const router = Router();
 
-  router.get(config.path, async (req: Request, res: Response) => {
+  router.get(config.path, async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (config.auth) {
         const isAuthenticated = await config.auth(req, res);
@@ -81,8 +81,7 @@ function createDynamicRoute<T = unknown>(config: RouteConfig<T>): express.Reques
 
       res.status(200).set({ "Content-Type": "text/html" }).send(html);
     } catch (error) {
-      console.error("Error in dynamic route:", error);
-      res.status(500).send("Internal Server Error");
+      next(error);
     }
   });
 
