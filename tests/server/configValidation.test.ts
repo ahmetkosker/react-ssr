@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, test, afterEach } from "node:test";
 
-// Not: require.resolve ile .ts uzantılı gerçek modül yolunu al (require.cache anahtarı budur)
+// Note: use require.resolve to get the real module path with the .ts extension
+// (that is the require.cache key)
 const configModulePath = require.resolve("../../src/server/config");
 
 const ENV_KEYS = [
@@ -33,7 +34,7 @@ function loadConfig(env: Record<string, string | undefined>) {
     if (value !== undefined) process.env[key] = value;
   }
   delete require.cache[configModulePath];
-  // Module'ü env değişkenleriyle yeniden yüklemek için require kasıtlıdır
+  // Intentional require to reload the module with the given env vars
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require(configModulePath) as typeof import("../../src/server/config");
 }
