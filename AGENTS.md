@@ -1,30 +1,30 @@
 # AGENTS.md
 
-## Komutlar
+## Commands
 
-- `yarn start:dev` — geliştirme sunucusu: önce `yarn build`, sonra esbuild watch (client+server, minify'sız + sourcemap) + Tailwind watch + nodemon (`nodemon.json` config'i ile).
-- `yarn build` — client sayfalarını, sunucuyu ve Tailwind CSS'i gitignored klasörlere derler. `yarn start` öncesi zorunlu (artifaktlar repoya commit edilmez).
-- `yarn start` — yalnızca derlenmiş sunucuyu çalıştırır; build yoksa `scripts/checkBuild.mjs` net mesajla durdurur.
-- `yarn typecheck` — `tsc --noEmit`. `yarn lint` — Prettier check + ESLint (flat config `eslint.config.mjs`); typecheck ayrı çalıştırılır.
-- `yarn lint:fix` / `yarn format` — ESLint otomatik düzeltme / Prettier ile formatlama.
-- `yarn test` — ts-node üzerinden node:test. Tek dosya: `node --require ts-node/register --test tests/server/config.test.ts`.
-- `yarn generate:page <Ad>` — yeni sayfa iskeleti (bileşen + client.ts + shared tip + server.tsx route kaydı; marker'lar: `// GENERATE:TYPE`, `// GENERATE:IMPORT`, `// GENERATE:ROUTE`).
-- `yarn ci` — tam doğrulama zinciri (lint → typecheck → test → build); CI da tam olarak bunu çalıştırır.
+- `yarn start:dev` — dev server: runs `yarn build` first, then esbuild watch (client+server, unminified + sourcemap) + Tailwind watch + nodemon (configured in `nodemon.json`).
+- `yarn build` — compiles client pages, server and Tailwind CSS into gitignored directories. Required before `yarn start` (artifacts are not committed).
+- `yarn start` — runs the compiled server only; if no build exists, `scripts/checkBuild.mjs` aborts with a clear message.
+- `yarn typecheck` — `tsc --noEmit`. `yarn lint` — Prettier check + ESLint (flat config `eslint.config.mjs`); typecheck runs separately.
+- `yarn lint:fix` / `yarn format` — ESLint auto-fix / format with Prettier.
+- `yarn test` — node:test via ts-node. Single file: `node --require ts-node/register --test tests/server/config.test.ts`.
+- `yarn generate:page <Name>` — scaffolds a new page (component + client.ts + shared type + route registration in server.tsx; markers: `// GENERATE:TYPE`, `// GENERATE:IMPORT`, `// GENERATE:ROUTE`).
+- `yarn ci` — full verification chain (lint → typecheck → test → build); CI runs exactly this.
 
-## Yapı ve mimari
+## Structure and architecture
 
-- Yarn 4 (node-modules linker), Express + React 18 SSR, esbuild, Tailwind. Framework yok, bundler config dosyası yok — esbuild bayrakları package.json script'lerinde.
-- Node 20+ (`engines` + `.nvmrc`), Node 18 desteklenmez.
-- Sunucu girişi `src/server/server.tsx` → `src/server/build/server.js`; sayfa bazlı client girişleri `src/client/pages/<Page>/client.ts` → `src/client/dist/<Page>/client.js`.
-- Yeni sayfa eklemek 3 parça gerektirir: sayfa bileşeni, `createApp` çağıran `client.ts` ve `server.tsx` içinde `id` değeri sayfa klasörüyle eşleşen `createDynamicRoute` kaydı (`<script src="/dist/<id>/client.js">` bunu belirler). Bunu `yarn generate:page` otomatik yapar.
-- SSR veri akışı: `fetchInitialData` → `window.__DATA__` (inline script) → `src/lib/client/createApp.tsx` ile hydration.
-- i18n: i18next, `src/locales/{en,fr}.json`. Yeni dil eklemek HEM `src/server/i18n.ts` HEM `src/client/i18n.ts` kaynak haritalarını güncellemeyi gerektirir. Dil çözümü: `lang` cookie → Accept-Language → `en`.
-- Config yalnızca process.env ile (dotenv yok), `src/server/config.ts`: `PORT`, `NODE_ENV`, `PUBLIC_BASE_URL`, `FETCH_TIMEOUT_MS`, `SITE_NAME`. Geçersiz değer başlangıçta throw eder (fail-fast). Tam liste: `.env.example`.
+- Yarn 4 (node-modules linker), Express + React 18 SSR, esbuild, Tailwind. No framework, no bundler config files — esbuild flags live in package.json scripts.
+- Node 20+ (`engines` + `.nvmrc`); Node 18 is not supported.
+- Server entry `src/server/server.tsx` → `src/server/build/server.js`; per-page client entries `src/client/pages/<Page>/client.ts` → `src/client/dist/<Page>/client.js`.
+- Adding a page requires 3 pieces: the page component, a `client.ts` calling `createApp`, and a `createDynamicRoute` registration in `server.tsx` whose `id` matches the page directory (it determines `<script src="/dist/<id>/client.js">`). `yarn generate:page` does this automatically.
+- SSR data flow: `fetchInitialData` → `window.__DATA__` (inline script) → hydration via `src/lib/client/createApp.tsx`.
+- i18n: i18next, `src/locales/{en,fr}.json`. Adding a language requires updating BOTH the `src/server/i18n.ts` and `src/client/i18n.ts` resource maps. Language resolution: `lang` cookie → Accept-Language → `en`.
+- Config via process.env only (no dotenv), `src/server/config.ts`: `PORT`, `NODE_ENV`, `PUBLIC_BASE_URL`, `FETCH_TIMEOUT_MS`, `SITE_NAME`. Invalid values throw at startup (fail-fast). Full list: `.env.example`.
 
-## Dikkat edilecekler
+## Gotchas
 
-- CSP `server.tsx` içinde sabittir; `connect-src` yalnızca `https://jsonplaceholder.typicode.com`'a izin verir — harici API çağrısı eklerken güncelle.
-- `src/client/public/index.html` repoda var ama kullanılmıyor (HTML `src/server/helpers/renderHtml.tsx` içinde üretiliyor); düzenleme.
-- `src/client/dist/` ve `src/server/build/` gitignored derleme çıktılarıdır — düzenleme veya commit etme.
-- Testler `node:assert/strict` + `node:test` ile, `src/` yapısını yansıtan `tests/` klasöründe.
-- `.env.example` Prettier'ı desteklemediği için `.prettierignore`'da; formatlama gerektirmez.
+- CSP is hardcoded in `server.tsx`; `connect-src` allows only `https://jsonplaceholder.typicode.com` — update it when adding external API calls.
+- `src/client/public/index.html` exists in the repo but is unused (HTML is generated in `src/server/helpers/renderHtml.tsx`); do not edit it.
+- `src/client/dist/` and `src/server/build/` are gitignored build outputs — never edit or commit them.
+- Tests use `node:assert/strict` + `node:test`, in `tests/` mirroring the `src/` structure.
+- `.env.example` is in `.prettierignore` because Prettier has no parser for it; it does not need formatting.
