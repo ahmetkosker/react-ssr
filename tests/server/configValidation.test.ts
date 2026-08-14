@@ -33,6 +33,8 @@ function loadConfig(env: Record<string, string | undefined>) {
     if (value !== undefined) process.env[key] = value;
   }
   delete require.cache[configModulePath];
+  // Module'ü env değişkenleriyle yeniden yüklemek için require kasıtlıdır
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require(configModulePath) as typeof import("../../src/server/config");
 }
 

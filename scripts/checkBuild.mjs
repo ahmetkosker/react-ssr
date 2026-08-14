@@ -1,6 +1,9 @@
 import { existsSync, readdirSync } from "node:fs";
 
-const requiredFiles = ["src/server/build/server.js", "src/client/dist/bundle.css"];
+const requiredFiles = [
+  "src/server/build/server.js",
+  "src/client/dist/bundle.css",
+];
 
 const missing = requiredFiles.filter((file) => !existsSync(file));
 
