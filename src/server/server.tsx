@@ -208,7 +208,12 @@ app.use(
   })
 );
 
-app.use((req: Request, res: Response) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    next();
+    return;
+  }
+
   void sendNotFoundPage(req, res).catch((error) => {
     console.error("404 rendering error:", error);
     res.status(404).send("Not Found");
