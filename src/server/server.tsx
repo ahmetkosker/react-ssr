@@ -196,7 +196,7 @@ app.use(
     fetchInitialData: async (params) => {
       const { id } = params || {};
       if (typeof id !== "string" || !/^\d+$/.test(id)) {
-        throw new Error("A valid numeric todo id is required");
+        throw new HttpError(400, "A valid numeric todo id is required");
       }
 
       const data = await fetchJson<Todo>(`https://jsonplaceholder.typicode.com/todos/${id}`, {
