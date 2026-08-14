@@ -37,3 +37,5 @@ export interface NotFoundData {
   path: string;
   currentPath?: string;
 }
+
+// GENERATE:TYPE

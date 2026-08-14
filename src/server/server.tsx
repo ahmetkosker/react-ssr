@@ -21,6 +21,7 @@ import type {
   TodoListRouteData,
   TodoDetailRouteData,
 } from "../shared/types";
+// GENERATE:IMPORT
 
 const app = express();
 
@@ -224,6 +225,7 @@ app.use(
   }),
 );
 
+// GENERATE:ROUTE
 app.use((req: Request, res: Response, next: NextFunction) => {
   if (req.method !== "GET" && req.method !== "HEAD") {
     next();
