@@ -3,6 +3,9 @@
   "packageManager": "yarn@4.0.2",
   "version": "1.0.1",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "author": {
     "email": "exarons@gmail.com",
     "name": "Ahmet Köşker",
