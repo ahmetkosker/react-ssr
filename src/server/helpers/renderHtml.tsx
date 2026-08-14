@@ -2,15 +2,7 @@ import React from "react";
 import ReactDOMServer from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
 import type { i18n as I18nInstance } from "i18next";
-
-interface Metatag {
-  title: string;
-  description: string;
-  canonicalUrl?: string;
-  type?: "website" | "article";
-  noindex?: boolean;
-  siteName?: string;
-}
+import type { Metatag } from "../../shared/types";
 
 const HTML_ESCAPE_MAP: Record<string, string> = {
   "&": "&amp;",

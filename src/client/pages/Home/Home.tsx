@@ -2,14 +2,9 @@ import React from "react";
 import { useCookies } from "react-cookie";
 import { useTranslation } from "react-i18next";
 import Layout from "../../components/Layout";
+import type { HomeRouteData } from "../../../shared/types";
 
-interface HomeProps {
-  data: {
-    currentPath?: string;
-  };
-}
-
-const Home: React.FC<HomeProps> = ({ data }) => {
+const Home: React.FC<{ data: HomeRouteData }> = ({ data }) => {
   const { t, i18n } = useTranslation();
   const [, setCookie] = useCookies(["lang"]);
 

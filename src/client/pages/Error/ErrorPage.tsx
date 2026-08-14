@@ -1,10 +1,6 @@
 import React from "react";
 import Layout from "../../components/Layout";
-
-interface ErrorPageData {
-  message: string;
-  currentPath?: string;
-}
+import type { ErrorPageData } from "../../../shared/types";
 
 const ErrorPage: React.FC<{ data: ErrorPageData }> = ({ data }) => {
   return (

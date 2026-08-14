@@ -1,10 +1,6 @@
 import React from "react";
 import Layout from "../../components/Layout";
-
-interface NotFoundData {
-  path: string;
-  currentPath?: string;
-}
+import type { NotFoundData } from "../../../shared/types";
 
 const NotFound: React.FC<{ data: NotFoundData }> = ({ data }) => {
   return (

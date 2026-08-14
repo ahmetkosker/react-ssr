@@ -6,15 +6,7 @@ import {
   resolveRequestLanguage,
 } from "../i18n";
 import { config as serverConfig } from "../config";
-
-interface Metatag {
-  title: string;
-  description: string;
-  canonicalUrl?: string;
-  type?: "website" | "article";
-  noindex?: boolean;
-  siteName?: string;
-}
+import type { Metatag } from "../../shared/types";
 
 interface RouteConfig<T = unknown> {
   path: string;
