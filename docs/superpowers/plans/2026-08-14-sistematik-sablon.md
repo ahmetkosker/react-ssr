@@ -1,10 +1,10 @@
-# Sistematik Şablon (Template Hardening) Implementation Plan
+# Systematic Template Hardening Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** react-ssr şablonunu 10 kişilik ekibin sıkıntısız kullanacağı sistematik hale getirmek: kod kalitesi disiplini (ESLint+Prettier+strict TS), scaffolding script'i, dokümantasyon ve operasyonel emniyetler.
+**Goal:** Make the react-ssr template systematic enough for a team of ~10 to use friction-free: code quality discipline (ESLint+Prettier+strict TS), a scaffolding script, documentation and operational safety rails.
 
-**Architecture:** Mevcut yapı korunur (Express+React18 SSR, esbuild, Tailwind, node:test). Üzerine eklenenler: flat-config ESLint + Prettier, saf fonksiyonlu `scripts/generatePage.ts` (ts-node ile çalışır, marker comment'lerle `server.tsx`/`shared/types.ts`'e ekleme yapar), fail-fast env doğrulama ve prestart build kontrolü.
+**Architecture:** The existing structure stays (Express + React 18 SSR, esbuild, Tailwind, node:test). Additions: flat-config ESLint + Prettier, `scripts/generatePage.ts` (runs via ts-node, inserts into `server.tsx`/`shared/types.ts` at marker comments), fail-fast env validation and a start-time build check.
 
 **Tech Stack:** Yarn 4, TypeScript 5.3+, ESLint 9 (flat), Prettier 3, typescript-eslint, ts-node, node:test.
 
@@ -12,20 +12,20 @@
 
 ---
 
-### Task 1: ESLint + Prettier kurulumu ve script'ler
+### Task 1: ESLint + Prettier setup and scripts
 
 **Files:**
 
 - Modify: `package.json`
 - Create: `eslint.config.mjs`, `.prettierrc.json`, `.prettierignore`
 
-- [ ] **Step 1: DevDependency'leri kur**
+- [ ] **Step 1: Install devDependencies**
 
 Run: `yarn add -D eslint @eslint/js typescript-eslint eslint-plugin-react eslint-plugin-react-hooks eslint-config-prettier prettier globals`
-Expected: başarıyla kurulur, package.json devDependencies güncellenir.
-Not: `eslint-plugin-react-hooks` güncel sürüm (v5+) gerekir — v4, ESLint 9+ ile uyumsuzdur. Yeni sürümün `recommended` config'i React 19 compiler kurallarını içerdiğinden klasik iki kural (`rules-of-hooks`, `exhaustive-deps`) explicit tanımlanır.
+Expected: installs successfully, package.json devDependencies updated.
+Note: a current `eslint-plugin-react-hooks` (v5+) is required — v4 is incompatible with ESLint 9+. Because the new plugin's `recommended` config includes React 19 compiler rules, the two classic rules (`rules-of-hooks`, `exhaustive-deps`) are defined explicitly.
 
-- [ ] **Step 2: Prettier config'leri yaz**
+- [ ] **Step 2: Write the Prettier configs**
 
 `.prettierrc.json`:
 
@@ -46,9 +46,10 @@ src/server/build
 node_modules
 bin
 .yarn
+.env.example
 ```
 
-- [ ] **Step 3: ESLint flat config yaz**
+- [ ] **Step 3: Write the ESLint flat config**
 
 `eslint.config.mjs`:
 
@@ -98,7 +99,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["eslint.config.mjs", "scripts/**/*.{mjs,js}"],
+    files: ["eslint.config.mjs", "scripts/**/*.{mjs,js}", "*.config.js"],
     languageOptions: {
       globals: globals.node,
     },
@@ -107,7 +108,7 @@ export default tseslint.config(
 );
 ```
 
-- [ ] **Step 4: package.json script'lerini güncelle**
+- [ ] **Step 4: Update package.json scripts**
 
 ```json
 "typecheck": "tsc --noEmit",
@@ -118,10 +119,10 @@ export default tseslint.config(
 "ci": "yarn lint && yarn typecheck && yarn test && yarn build",
 ```
 
-- [ ] **Step 5: Doğrula**
+- [ ] **Step 5: Verify**
 
 Run: `yarn lint`
-Expected: prettier check geçer (henüz formatlanmadıysa bazı dosyalarda fail olabilir — Task 2'de formatlanacak; ESLint hataları varsa not al, Task 4'te düzeltilecek).
+Expected: prettier check may fail on unformatted files (formatted in Task 2); note any ESLint errors to fix in Task 4.
 
 - [ ] **Step 6: Commit**
 
@@ -132,19 +133,19 @@ git commit -m "chore: add ESLint flat config and Prettier"
 
 ---
 
-### Task 2: Kod tabanını formatla
+### Task 2: Format the codebase
 
-**Files:** tüm `src/`, `tests/`, `scripts/` dosyaları (Prettier ile)
+**Files:** all `src/`, `tests/`, `scripts/` files (with Prettier)
 
-- [ ] **Step 1: Format uygula**
+- [ ] **Step 1: Apply formatting**
 
 Run: `yarn format`
-Expected: dosyalar formatlanır.
+Expected: files get formatted.
 
-- [ ] **Step 2: Testler hâlâ geçiyor mu**
+- [ ] **Step 2: Tests still pass**
 
 Run: `yarn typecheck && yarn test`
-Expected: PASS (formatlama davranışı değiştirmez).
+Expected: PASS (formatting does not change behavior).
 
 - [ ] **Step 3: Commit**
 
@@ -155,15 +156,15 @@ git commit -m "style: format codebase with Prettier"
 
 ---
 
-### Task 3: Strict TypeScript bayrakları
+### Task 3: Strict TypeScript flags
 
 **Files:**
 
 - Modify: `tsconfig.json`
 
-- [ ] **Step 1: Bayrakları aç**
+- [ ] **Step 1: Enable the flags**
 
-`compilerOptions` içine ekle:
+Add to `compilerOptions` (in the top active-options section):
 
 ```json
 "noUnusedLocals": true,
@@ -175,7 +176,7 @@ git commit -m "style: format codebase with Prettier"
 - [ ] **Step 2: Typecheck**
 
 Run: `yarn typecheck`
-Expected: PASS. Hata çıkarsa ilgili kodu düzelt (mevcut kodda beklenen hata yok; `_` prefix'li parametreler `noUnusedParameters`'dan muaf).
+Expected: PASS. If errors appear, fix the code (`_`-prefixed parameters are exempt from `noUnusedParameters`).
 
 - [ ] **Step 3: Commit**
 
@@ -186,21 +187,21 @@ git commit -m "build: enable stricter TypeScript flags"
 
 ---
 
-### Task 4: ESLint hatalarını temizle
+### Task 4: Clean up ESLint issues
 
-**Files:** `yarn lint` çıktısındaki dosyalar
+**Files:** files listed in `yarn lint` output
 
-- [ ] **Step 1: Otomatik düzeltmeler**
+- [ ] **Step 1: Auto-fixes**
 
 Run: `yarn lint:fix`
-Expected: düzeltilebilir hatalar çözülür.
+Expected: fixable errors get resolved.
 
-- [ ] **Step 2: Kalan hataları elle çöz**
+- [ ] **Step 2: Fix the rest manually**
 
 Run: `yarn lint`
-Expected: temiz çıktı. Kurallarla çakışan istisnai durumlar varsa (örn. `server/i18n.ts`'teki `require("../locales/en.json")`) satır bazlı `// eslint-disable-next-line` yerine gerekirse config ayarlanır — yalnızca zorunluysa.
+Expected: clean output. If a rule genuinely conflicts (e.g. `require("../locales/en.json")` in `server/i18n.ts`), prefer adjusting the code or config over `// eslint-disable-next-line` — only when necessary.
 
-- [ ] **Step 3: Testler**
+- [ ] **Step 3: Tests**
 
 Run: `yarn typecheck && yarn test`
 Expected: PASS.
@@ -214,22 +215,23 @@ git commit -m "lint: fix ESLint issues"
 
 ---
 
-### Task 5: Config fail-fast doğrulama
+### Task 5: Config fail-fast validation
 
 **Files:**
 
 - Modify: `src/server/config.ts`
 - Create: `tests/server/configValidation.test.ts`
 
-- [ ] **Step 1: Failing testleri yaz**
+- [ ] **Step 1: Write the failing tests**
 
-`tests/server/configValidation.test.ts` (config modülü require cache'den silinerek env değişkenleriyle yeniden yüklenir):
+`tests/server/configValidation.test.ts` (the config module is reloaded with env vars by clearing the require cache):
 
 ```ts
 import assert from "node:assert/strict";
 import { describe, test, afterEach } from "node:test";
 
-// Not: require.resolve ile .ts uzantılı gerçek modül yolunu al (require.cache anahtarı budur)
+// Note: use require.resolve to get the real module path with the .ts extension
+// (that is the require.cache key)
 const configModulePath = require.resolve("../../src/server/config");
 
 const ENV_KEYS = [
@@ -261,6 +263,8 @@ function loadConfig(env: Record<string, string | undefined>) {
     if (value !== undefined) process.env[key] = value;
   }
   delete require.cache[configModulePath];
+  // Intentional require to reload the module with the given env vars
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require(configModulePath) as typeof import("../../src/server/config");
 }
 
@@ -307,12 +311,12 @@ describe("config validation", () => {
 });
 ```
 
-- [ ] **Step 2: Testlerin fail olduğunu gör**
+- [ ] **Step 2: Watch the tests fail**
 
 Run: `node --require ts-node/register --test tests/server/configValidation.test.ts`
-Expected: FAIL (henüz throw yok).
+Expected: FAIL (nothing throws yet).
 
-- [ ] **Step 3: Implementasyon**
+- [ ] **Step 3: Implementation**
 
 `src/server/config.ts`:
 
@@ -405,10 +409,10 @@ export const config = {
 export const isProduction = config.env === "production";
 ```
 
-- [ ] **Step 4: Testler geçiyor mu**
+- [ ] **Step 4: Tests pass**
 
 Run: `yarn test`
-Expected: 23 test PASS (17 mevcut + 6 yeni).
+Expected: 23 tests PASS (17 existing + 6 new).
 
 - [ ] **Step 5: Commit**
 
@@ -419,36 +423,37 @@ git commit -m "feat: fail fast on invalid environment configuration"
 
 ---
 
-### Task 6: .env.example ve README env bölümü
+### Task 6: .env.example and README env section
 
 **Files:**
 
 - Create: `.env.example`
 - Modify: `README.md`
 
-- [ ] **Step 1: .env.example yaz**
+- [ ] **Step 1: Write .env.example**
 
 ```
-# react-ssr ortam değişkenleri (dotenv YOKTUR; bunları shell'den export edin)
-# Örn: PORT=3001 yarn start
+# react-ssr environment variables
+# NOTE: dotenv is NOT used; export these from your shell.
+# Example: PORT=3001 yarn start
 
-# Sunucu portu (1-65535)
+# Server port (1-65535)
 PORT=3000
 # development | production
 NODE_ENV=development
-# canonical linkler ve sitemap için kullanılan base URL (sonda slash olmasın)
+# Base URL for canonical links and sitemap (no trailing slash)
 PUBLIC_BASE_URL=http://localhost:3000
-# Yukarı akış (JSONPlaceholder vb.) istekleri için timeout (ms)
+# Timeout (ms) for upstream fetches (JSONPlaceholder etc.)
 FETCH_TIMEOUT_MS=8000
-# lang cookie'sinin max yaşı (ms)
+# Max age (ms) of the lang cookie
 COOKIE_MAX_AGE_MS=86400000
-# Sayfa başlıklarında görünen site adı
+# Site name shown in page titles
 SITE_NAME=React SSR
 ```
 
-- [ ] **Step 2: README'ye bölüm ekle**
+- [ ] **Step 2: Add sections to README**
 
-"## Environment Variables" bölümü: değişken tablosu + "dotenv yok, export edin" notu + `.env.example` referansı. "## Scripts" bölümü: `build`, `start`, `start:dev`, `test`, `lint`, `format`, `typecheck`, `generate:page` tablosu.
+"## Environment Variables" section: variable table + "no dotenv, export them" note + `.env.example` reference. "## Scripts" section: table of `build`, `start`, `start:dev`, `test`, `lint`, `format`, `typecheck`, `generate:page`.
 
 - [ ] **Step 3: Commit**
 
@@ -459,18 +464,18 @@ git commit -m "docs: document environment variables in README and .env.example"
 
 ---
 
-### Task 7: Node sürümü sabitleme
+### Task 7: Pin the Node version
 
 **Files:**
 
 - Create: `.nvmrc`
 - Modify: `package.json`
 
-- [ ] **Step 1: Dosyaları yaz**
+- [ ] **Step 1: Write the files**
 
-`.nvmrc`: içerik `20`
+`.nvmrc`: content `20`
 
-`package.json` içine (version alanından sonra):
+In `package.json` (after the version field):
 
 ```json
 "engines": {
@@ -478,9 +483,9 @@ git commit -m "docs: document environment variables in README and .env.example"
 }
 ```
 
-- [ ] **Step 2: Doğrula**
+- [ ] **Step 2: Verify**
 
-Run: `yarn install` (engines uyarısı olmamalı; yerel Node 23 uyumlu), `yarn typecheck`
+Run: `yarn install` (no engines warning; local Node 23 satisfies the range), `yarn typecheck`
 Expected: PASS.
 
 - [ ] **Step 3: Commit**
@@ -492,25 +497,25 @@ git commit -m "chore: pin Node version with .nvmrc and engines"
 
 ---
 
-### Task 8: Dev sourcemap'leri
+### Task 8: Dev sourcemaps
 
 **Files:**
 
 - Modify: `package.json`
 
-- [ ] **Step 1: Watch script'lerini güncelle**
+- [ ] **Step 1: Update the watch scripts**
 
 ```json
 "build:client:watch": "esbuild src/client/pages/**/client.ts --bundle --sourcemap --loader:.js=jsx --outdir=src/client/dist/ --watch",
 "build:server:watch": "esbuild src/server/server.tsx --bundle --platform=node --sourcemap --loader:.js=jsx --outfile=src/server/build/server.js --watch",
 ```
 
-(`build:client:watch`'tan `--minify` kaldırılır — dev'de okunabilir bundle + sourcemap.)
+(`--minify` is removed from `build:client:watch` — readable bundles + sourcemaps in dev.)
 
 - [ ] **Step 2: Smoke test**
 
 Run: `timeout 15 yarn start:dev`
-Expected: server ayağa kalkar; `src/client/dist/Home/client.js.map` ve `src/server/build/server.js.map` oluşur.
+Expected: server starts; `src/client/dist/Home/client.js.map` and `src/server/build/server.js.map` are created.
 
 - [ ] **Step 3: Commit**
 
@@ -521,14 +526,14 @@ git commit -m "dev: add sourcemaps and drop minification in watch builds"
 
 ---
 
-### Task 9: prestart build kontrolü
+### Task 9: Start-time build check
 
 **Files:**
 
 - Create: `scripts/checkBuild.mjs`
 - Modify: `package.json`
 
-- [ ] **Step 1: Script yaz**
+- [ ] **Step 1: Write the script**
 
 ```js
 import { existsSync, readdirSync } from "node:fs";
@@ -559,14 +564,14 @@ if (missing.length > 0 || !hasClientBundles) {
 }
 ```
 
-- [ ] **Step 2: start script'ine göm**
+- [ ] **Step 2: Fold it into the start script**
 
 `package.json` scripts: `"start": "node scripts/checkBuild.mjs && node src/server/build/server.js"`
-Not: Yarn 4, npm'in `prestart`/`poststart` hook'larını desteklemez — kontrol doğrudan `start` script'inde olmalı.
+Note: Yarn 4 does not support npm's `prestart`/`poststart` hooks — the check must live directly in the `start` script.
 
-- [ ] **Step 3: Test et**
+- [ ] **Step 3: Test it**
 
-Run: `rm -rf src/server/build && yarn start` → Expected: net hata mesajı, exit 1. Sonra `yarn build && yarn start` → çalışır (Ctrl+C ile durdur).
+Run: `rm -rf src/server/build && yarn start` → Expected: clear error message, exit 1. Then `yarn build && yarn start` → works (stop with Ctrl+C).
 
 - [ ] **Step 4: Commit**
 
@@ -577,34 +582,34 @@ git commit -m "feat: fail with clear message when starting without build"
 
 ---
 
-### Task 10: generate:page scaffolding script'i
+### Task 10: generate:page scaffolding script
 
 **Files:**
 
-- Modify: `src/server/server.tsx` (marker'lar eklenir)
-- Modify: `src/shared/types.ts` (marker eklenir)
+- Modify: `src/server/server.tsx` (markers added)
+- Modify: `src/shared/types.ts` (marker added)
 - Modify: `package.json` (script)
 - Create: `scripts/generatePage.ts`
 - Create: `tests/scripts/generatePage.test.ts`
 
-- [ ] **Step 1: Marker'ları ekle**
+- [ ] **Step 1: Add the markers**
 
-`src/shared/types.ts` sonuna: `// GENERATE:TYPE`
-`src/server/server.tsx`:
+At the end of `src/shared/types.ts`: `// GENERATE:TYPE`
+In `src/server/server.tsx`:
 
-- page import'larının olduğu bloğa (import satırlarından sonra): `// GENERATE:IMPORT`
-- 404 catch-all'dan hemen önce: `// GENERATE:ROUTE`
+- in the page-import block (after the import lines): `// GENERATE:IMPORT`
+- immediately before the 404 catch-all: `// GENERATE:ROUTE`
 
-- [ ] **Step 1.5: Marker'ları ayrı commit'le** (sonraki smoke test temizliği `git checkout` yapacak; marker'lar commit'lenmiş olmalı ki kaybolmasın)
+- [ ] **Step 1.5: Commit the markers separately** (the later smoke-test cleanup uses `git checkout`; the markers must be committed so they are not lost)
 
 ```bash
 git add src/server/server.tsx src/shared/types.ts
 git commit -m "chore: add generation markers for page scaffolding"
 ```
 
-- [ ] **Step 2: Failing testleri yaz**
+- [ ] **Step 2: Write the failing tests**
 
-`tests/scripts/generatePage.test.ts` (saf fonksiyonlar + tmp dizinde entegrasyon):
+`tests/scripts/generatePage.test.ts` (pure functions + integration in a tmp dir):
 
 ```ts
 import assert from "node:assert/strict";
@@ -720,12 +725,12 @@ describe("generatePage", () => {
 });
 ```
 
-- [ ] **Step 3: Testlerin fail olduğunu gör**
+- [ ] **Step 3: Watch the tests fail**
 
 Run: `node --require ts-node/register --test tests/scripts/generatePage.test.ts`
-Expected: FAIL (dosya yok).
+Expected: FAIL (file does not exist).
 
-- [ ] **Step 4: Script'i yaz**
+- [ ] **Step 4: Write the script**
 
 `scripts/generatePage.ts`:
 
@@ -876,21 +881,21 @@ if (require.main === module) {
 }
 ```
 
-- [ ] **Step 5: package.json script'i**
+- [ ] **Step 5: package.json script**
 
 ```json
 "generate:page": "ts-node scripts/generatePage.ts"
 ```
 
-- [ ] **Step 6: Testler geçiyor mu**
+- [ ] **Step 6: Tests pass**
 
 Run: `node --require ts-node/register --test tests/scripts/generatePage.test.ts`
-Expected: PASS (6 test).
+Expected: PASS (6 tests).
 
-- [ ] **Step 7: Uçtan uca smoke test**
+- [ ] **Step 7: End-to-end smoke test**
 
 Run: `yarn generate:page Demo && yarn typecheck && yarn lint && yarn build`
-Expected: `src/client/pages/Demo/` oluşur, route kaydı + tip import'u `server.tsx`'e girer, typecheck/lint/build geçer. Test sunucusunu başlatıp `/demo` 200 verir. Sonra Demo sayfasını sil (test artığı kalmasın): `rm -rf src/client/pages/Demo` + `git checkout src/server/server.tsx src/shared/types.ts` (marker'lar Step 1.5'te commit'lendiği için güvenle geri alınır).
+Expected: `src/client/pages/Demo/` is created, route registration + type import land in `server.tsx`, typecheck/lint/build pass. Start the test server and confirm `/demo` returns 200. Then remove the Demo page (leave no test residue): `rm -rf src/client/pages/Demo` + `git checkout src/server/server.tsx src/shared/types.ts` (safe because the markers were committed in Step 1.5).
 
 - [ ] **Step 8: Commit**
 
@@ -901,29 +906,29 @@ git commit -m "feat: add generate:page scaffolding script"
 
 ---
 
-### Task 11: CONTRIBUTING.md ve dokümantasyon
+### Task 11: CONTRIBUTING.md and documentation
 
 **Files:**
 
 - Create: `CONTRIBUTING.md`
 - Modify: `README.md`, `AGENTS.md`
 
-- [ ] **Step 1: CONTRIBUTING.md yaz**
+- [ ] **Step 1: Write CONTRIBUTING.md**
 
-Bölümler: Geliştirme ortamı (Node 20+, `corepack enable`, `yarn install`), Komutlar tablosu, Yeni sayfa ekleme (`yarn generate:page <Name>` + manuel 3 parça), i18n (iki haritanın da güncellenmesi), Ortam değişkenleri (.env.example referansı), Commit mesajları (feat/fix/refactor/test/docs/chore prefix'leri), Test yazma (node:test + assert/strict, tests/ ağacı src'i yansıtır).
+Sections: Development environment (Node 20+, `corepack enable`, `yarn install`), command table, adding a page (`yarn generate:page <Name>` + the manual 3 pieces), i18n (both resource maps must be updated), environment variables (.env.example reference), commit messages (feat/fix/refactor/test/docs/chore prefixes), writing tests (node:test + assert/strict, tests/ tree mirrors src/).
 
-- [ ] **Step 2: README güncelle**
+- [ ] **Step 2: Update README**
 
-Scripts bölümüne yeni komutlar (`test`, `lint`, `format`, `typecheck`, `generate:page`), Environment Variables bölümü (Task 6'da eklendi), "## Contributing" → `CONTRIBUTING.md` linki.
+Add the new commands to the Scripts section (`test`, `lint`, `format`, `typecheck`, `generate:page`), the Environment Variables section (added in Task 6), and "## Contributing" linking to `CONTRIBUTING.md`.
 
-- [ ] **Step 3: AGENTS.md güncelle**
+- [ ] **Step 3: Update AGENTS.md**
 
-- `yarn lint` satırı: "ESLint (flat config) + `prettier --check`; typecheck ayrıdır: `yarn typecheck`"
+- `yarn lint` line: "ESLint (flat config) + `prettier --check`; typecheck is separate: `yarn typecheck`"
 - `yarn ci`: `lint → typecheck → test → build`
-- Yeni komutlar: `yarn format`, `yarn lint:fix`, `yarn generate:page <Name>`
+- New commands: `yarn format`, `yarn lint:fix`, `yarn generate:page <Name>`
 - Node: `.nvmrc` (20) + `engines >=20`
-- Env fail-fast notu: geçersiz env değeri sunucu başlangıcını durdurur
-- `prestart` kontrolü notu
+- Env fail-fast note: invalid env values stop server startup
+- Start-time build check note
 
 - [ ] **Step 4: Commit**
 
@@ -934,24 +939,24 @@ git commit -m "docs: add CONTRIBUTING guide and update README and AGENTS.md"
 
 ---
 
-### Task 12: Final doğrulama
+### Task 12: Final verification
 
-- [ ] **Step 1: Yeni dosyaları formatla**
+- [ ] **Step 1: Format the new files**
 
 Run: `yarn format`
-Expected: tüm dosyalar (inline yazılmış yeniler dahil) Prettier uyumlu olur.
+Expected: all files (including the newly written ones) are Prettier-compliant.
 
-- [ ] **Step 2: Tüm zincir**
+- [ ] **Step 2: Full chain**
 
 Run: `yarn ci`
-Expected: lint → typecheck → test → build hepsi PASS.
+Expected: lint → typecheck → test → build all PASS.
 
 - [ ] **Step 3: Smoke test**
 
 Run: `timeout 15 yarn start:dev`
-Expected: server ayağa kalkar. `yarn start` build'siz çalışmaz (net hata), build'li çalışır.
+Expected: server starts. `yarn start` fails without a build (clear error), works with one.
 
-- [ ] **Step 4: Working tree temizliği**
+- [ ] **Step 4: Clean working tree**
 
 Run: `git status --short`
-Expected: temiz.
+Expected: clean.
