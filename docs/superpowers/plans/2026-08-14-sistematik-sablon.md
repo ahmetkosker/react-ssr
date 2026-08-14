@@ -474,7 +474,7 @@ const requiredFiles = [
 
 const missing = requiredFiles.filter((file) => !existsSync(file));
 
-const hasClientBundles = existsSync("src/client/dist") && readdirSync("src/client/dist").some((entry) => entry.endsWith(".js"));
+const hasClientBundles = existsSync("src/client/dist") && readdirSync("src/client/dist", { recursive: true }).some((entry) => String(entry).endsWith(".js"));
 
 if (missing.length > 0 || !hasClientBundles) {
   console.error("Compiled assets are missing:");
@@ -725,7 +725,7 @@ export function generatePage(name: string, options: GenerateOptions): void {
   insertAtMarker(serverPath, "// GENERATE:ROUTE", routeRegistrationTemplate(name));
 
   if (options.format) {
-    execSync(`npx prettier --write "${pageDir}" "${typesPath}" "${serverPath}"`, {
+    execSync(`yarn prettier --write "${pageDir}" "${typesPath}" "${serverPath}"`, {
       cwd: rootDir,
       stdio: "inherit",
     });
