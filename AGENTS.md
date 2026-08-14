@@ -2,7 +2,7 @@
 
 ## Komutlar
 - `yarn start:dev` — geliştirme sunucusu: esbuild watch (client+server) + Tailwind watch + nodemon. Önce derler, sonra `src/server/build/server.js` çalıştırır.
-- `yarn build` — client sayfalarını ve sunucuyu gitignored klasörlere derler. `yarn start` öncesi zorunlu (artifaktlar repoya commit edilmez).
+- `yarn build` — client sayfalarını, sunucuyu ve Tailwind CSS'i gitignored klasörlere derler. `yarn start` öncesi zorunlu (artifaktlar repoya commit edilmez).
 - `yarn start` — yalnızca derlenmiş sunucuyu çalıştırır; `yarn build` yapılmadıysa hata verir.
 - `yarn typecheck` / `yarn lint` — `lint`, `tsc --noEmit` için bir alias'tır; ESLint/Prettier yoktur.
 - `yarn test` — ts-node üzerinden node:test. Tek dosya: `node --require ts-node/register --test tests/server/config.test.ts`.
